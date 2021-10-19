@@ -1,0 +1,7 @@
+homepage: home
+theme: flattery
+pageManager:
+  extensions:
+    - php
+    - txt
+    - md
