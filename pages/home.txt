@@ -1,1 +1,6 @@
-This is the home page
+title: This is the home page
+===
+Hello, world!
+This is on a new line.
+
+This is a new paragraph.

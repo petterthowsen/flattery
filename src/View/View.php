@@ -23,33 +23,55 @@ namespace ThowsenMedia\Flattery\View;
 class View
 {
 
-    private static $viewsDirectory;
-
-    public static $globalVars = [];
+    public static array $globalVars = [];
     
-    private $_file;
+    private static bool $errorHandlerRegistered = false;
 
-    public $_variables = [];
+    private string $_file;
 
-    public static function setViewsDirectory(string $directory)
-    {
-        static::$viewsDirectory = $directory;
-    }
+    public array $_variables = [];
 
     public static function addGlobalVar(string $variable, $value)
     {
         static::$globalVars[$variable] = $value;
     }
 
+    public static function errorHandler()
+    {
+        $error = error_get_last();
+
+        if ($error) {
+            ob_get_clean();
+            echo '<strong>Error</strong>: ' .$error['message'] .'<br>';
+            echo 'In file: ' .$error['file'] .' at line ' .$error['line'];
+        }
+    } 
+
+    private static function registerErrorHandler()
+    {
+        if (static::$errorHandlerRegistered == false) {
+            register_shutdown_function([static::class, 'errorHandler']);
+            static::$errorHandlerRegistered = true;
+        }
+    }
+
     public function __construct(string $file, array $variables = [])
     {
-        $this->_file = static::$viewsDirectory .'/' .$file .'.php';
+        static::registerErrorHandler();
+        
+        $this->_file = $file;
         $this->_variables = $variables;
     }
 
     public static function make(string $file, array $variables = []): View
     {
         return new static($file, $variables);
+    }
+
+    public function with($variables): View
+    {
+        $this->_variables = array_merge($this->_variables, $variables);
+        return $this;
     }
 
     private function include(string $file, array $variables = [])
@@ -59,11 +81,16 @@ class View
 
     public function render()
     {
-        extract($this->_variables);
         extract(static::$globalVars);
+        extract($this->_variables);
         ob_start();
         include $this->_file;
         return ob_get_clean();
+    }
+
+    public function __toString()
+    {
+        return $this->render();
     }
 
 }

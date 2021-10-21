@@ -6,4 +6,6 @@ require_once 'src/functions.php';
 use ThowsenMedia\Flattery\CMS;
 
 $app = CMS::getInstance();
-$app->run();
+$response = $app->run();
+
+echo $response;
