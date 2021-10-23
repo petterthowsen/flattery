@@ -5,6 +5,7 @@ use ThowsenMedia\Flattery\Data\Data;
 use ThowsenMedia\Flattery\Event;
 use ThowsenMedia\Flattery\HTTP\Request;
 use ThowsenMedia\Flattery\HTTP\Session;
+use ThowsenMedia\Flattery\Pages\PageManager;
 
 /**
  * Get a nested value from an associative array using dot-notation. For example

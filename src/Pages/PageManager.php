@@ -73,40 +73,33 @@ class PageManager {
         return str_replace("\n", "<br>", $text);
     }
 
-    /**
-     * @return array [
-     *  'settings' => [
-     *     'title' => '...'
-     *  ],
-     *  'content' => '<p>Hello, world</p>''
-     * ]
-     */
-    public function loadFile(string $fileName)
+    protected function load(string $name): Page
     {
-        $src = file_get_contents($fileName);
+
+        $structured = $this->isPageStructured($name);
+
+        $file = $this->getFile($name);
+
+        $src = file_get_contents($file);
         $src = explode("\n---", $src, 2);
 
-        $settings = [
-            
-        ];
-
+        $info = [];
         if (count($src) == 2) {
-            $settings = Yaml::parse($src[0]);
+            $info = Yaml::parse($src[0]);
             $content = $src[1];
         }else {
             $content = $src[0];
         }
 
-        $settings['content'] = $content;
-        
-        return $settings;
-    }
+        if ($structured) {
+            $page = new StructuredPage($name, $file, $info);
+        }else {
+            $page = new Page($name, $file, $info);
+        }
 
-    protected function load(string $name)
-    {
+        $this->pages[$name] = $page;
 
-        $src = file_get_contents($fileName);
-        $src = explode("\n---", $src, 2);
+        return $page;
     }
 
     public function get(string $name): Page

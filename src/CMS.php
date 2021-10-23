@@ -14,6 +14,7 @@ use ThowsenMedia\Flattery\View\View;
 use ThowsenMedia\Flattery\Container;
 use ThowsenMedia\Flattery\Extending\PluginLoader;
 use ThowsenMedia\Flattery\HTTP\Response;
+use ThowsenMedia\Flattery\Pages\Page;
 
 /**
  * @property Event $event
@@ -69,9 +70,7 @@ class CMS extends Container {
         }, true);
     }
 
-    public string $currentThemeName;
-    public string $currentPage;
-    public string $currentPageFile;
+    public Page $currentPage;
 
     private $styles = [];
     private $scripts = [];
@@ -230,8 +229,8 @@ class CMS extends Container {
 
         # check if the page exists
         if ($this->pages->exists($pageName)) {
-            $this->currentPage = $pageName;
-            $this->currentPageFile = $this->pages->getFile($pageName);
+            $this->currentPage = $this->pages->get($pageName);
+
             $view = $this->getViewForPage($this->currentPage);
             
             $response = new Response();
@@ -243,19 +242,13 @@ class CMS extends Container {
         }
     }
 
-    public function getViewForPage(string $pageName): View
+    public function getViewForPage(Page $page): View
     {
-        $pageFile = $this->pages->getFile($pageName);
-        $pageFile = $this->event->trigger('hook.flattery.getViewForPage_pageFile', $pageFile);
-
-        # get the page
-        $page = $this->pages->loadFile($pageFile);
-        $page = $this->event->trigger('hook.flattery.getViewForPage_page', $page);
-        
         # get the view
         $view = $this->theme->getView();
-        $view = $this->event->trigger('hook.flattery.getViewForPage_view', $view);
-        
+
+        $this->event->trigger('hook.flattery.getViewForPage', $view);
+
         # return the view with the page
         return $view->with([
             'page' => $page,

@@ -3,7 +3,7 @@
 <head lang="en-US">
 
     <meta charset="utf-8">
-    <title><?=$page['title'] .' | ' .$siteName?></title>
+    <title><?=$page->title .' | ' .$siteName?></title>
 
     <?=$styles?>
 </head>
@@ -20,9 +20,9 @@
     </header>
 
     <main id="main">
-        <h1><?=$page['title']?></h1>
+        <h1><?=$page->title?></h1>
 
-        <?=$page['content']?>
+        <?=$page->content?>
     </main>
     <?=$scripts?>
 </body>

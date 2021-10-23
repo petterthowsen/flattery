@@ -7,15 +7,31 @@ namespace ThowsenMedia\Flattery\Pages;
  */
 class Page {
     
+    /**
+     * Name of the file - this is the file name without the .extension
+     */
     private string $name;
 
+    /**
+     * Full path to the page file
+     */
     private string $file;
+
+    /**
+     * File extension
+     */
+    private string $extension;
 
     private array $_data;
 
     public function __construct(string $name, string $file, array $data)
     {
-        $this->_data = $data;   
+        $this->name = $name;
+        $this->file = $file;
+        $this->_data = $data;
+
+        $exploded = explode('.', $file);
+        $this->extension = array_pop($exploded);
     }
 
     public function getName(): string

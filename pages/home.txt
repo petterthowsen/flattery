@@ -1,4 +1,4 @@
-title: This is the home page
+title: Home
 ---
 Hello, world!
 This is on a new line.
