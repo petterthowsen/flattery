@@ -1,0 +1,39 @@
+body {
+    font-family: Verdana, sans-serif;
+}
+
+#header {
+    border-bottom: 1px solid #bbb;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 1rem 0;
+}
+
+#brand {
+    display: block;
+    padding: 1rem;
+    margin-right: 1rem;
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+#navigation ul {
+    padding-left: 0;
+}
+#navigation ul li {
+    display: inline-block;
+    list-style: none;
+    list-style-type: none;
+}
+#navigation ul li a {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+}
+
+#main {
+    max-width: 600px;
+    margin: 0 auto;
+}

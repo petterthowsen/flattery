@@ -5,6 +5,11 @@ namespace ThowsenMedia\Flattery\Data;
 use Exception;
 use Symfony\Component\Yaml\Yaml;
 
+/**
+ * Reads yml files from the FLATTERY_DATA directory
+ * - All data files are lazy-loaded
+ * - When setting data, pass true as the second argument to save immediately.
+ */
 class Data {
     
     private string $_data_dir;
@@ -39,6 +44,22 @@ class Data {
         return isset($this->_loadedFiles[$file]);
     }
 
+    private function saveFile(string $handle)
+    {
+        if ( ! $this->isFileLoaded($handle)) {
+            throw new \Exception("Cannot save $handle because it's not loaded.");
+        }
+
+        $file = $this->sanitizeFileHandleString($handle);
+        
+        $filePath = $this->_data_dir .'/' .$file;
+
+        $yaml = Yaml::dump($this->_loadedFiles[$handle]);
+        if (file_put_contents($filePath, $yaml) === false) {
+            throw new \Exception("Failed to write data to $handle");
+        }
+    }
+
     private function loadFile(string $handle, bool $forceReload = false)
     {
         if ($this->isFileLoaded($handle) == false or $forceReload == true) {
@@ -55,9 +76,14 @@ class Data {
         }
     }
 
-    public function getKey(string $file, string $key)
+    private function getKey(string $file, string $key)
     {
         return array_get($key, $this->_loadedFiles[$file]);
+    }
+
+    private function setKey(string $file, string $key, $value)
+    {
+        array_set($key, $value, $this->_loadedFiles[$file]);
     }
 
     public function get(string $file, string $key, string $defaultReturnValue = null)
@@ -67,6 +93,31 @@ class Data {
         return $this->getKey($file, $key) ?? $defaultReturnValue;
     }
     
+    public function has(string $file, string $key): bool
+    {
+        $this->loadFile($file);
+
+        return array_has($key, $this->getKey($file, $key));
+    }
+    
+    public function contains(string $file, string $key, $needle): bool
+    {
+        $this->loadFile($file);
+
+        $array = $this->getKey($file, $key);
+        return in_array($needle, $array, true);
+    }
+
+    public function set(string $file, string $key, $value, bool $save = false)
+    {
+        $this->loadFile($file, $key);
+        $this->setKey($file, $key, $value);
+
+        if ($save) {
+            $this->saveFile($file);
+        }
+    }
+
     private function startMagicGetting($handle)
     {
         $this->_isMagicGetting = true;

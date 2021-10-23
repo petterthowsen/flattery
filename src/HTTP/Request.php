@@ -7,7 +7,7 @@ class Request {
     private string $rawQuery = '';
 
     private array $segments = [];
-
+    
     public function __construct()
     {
         $this->rawQuery = $_GET['_flattery_query'] ?? '';
@@ -19,6 +19,11 @@ class Request {
     public function segment($number): ?string
     {
         return $this->segments[$number] ?? null;
+    }
+
+    public function getSegments(): array
+    {
+        return $this->segments;
     }
 
 }

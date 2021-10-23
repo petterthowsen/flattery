@@ -9,4 +9,9 @@ class ControlPanel extends Plugin {
         
     }
 
+    public function run()
+    {
+        
+    }
+
 }

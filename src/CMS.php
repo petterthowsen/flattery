@@ -2,134 +2,296 @@
 
 namespace ThowsenMedia\Flattery;
 
+use ThowsenMedia\Flattery\Console\Commands\InstallPluginCommand;
+use ThowsenMedia\Flattery\Console\Console;
 use ThowsenMedia\Flattery\Data\Data;
+use ThowsenMedia\Flattery\HTTP\Kernel;
 use ThowsenMedia\Flattery\HTTP\Request;
+use ThowsenMedia\Flattery\HTTP\Session;
 use ThowsenMedia\Flattery\Pages\PageManager;
 use ThowsenMedia\Flattery\Theme\Theme;
 use ThowsenMedia\Flattery\View\View;
+use ThowsenMedia\Flattery\Container;
+use ThowsenMedia\Flattery\Extending\PluginLoader;
+use ThowsenMedia\Flattery\HTTP\Response;
 
-class CMS {
+/**
+ * @property Event $event
+ * @property Request $request
+ * @property Kernel $kernel
+ * @property Data $data
+ * @property Session $session
+ * @property PluginLoader $plugins
+ * @property PageManager $pages
+ */
+class CMS extends Container {
 
-    public static $instance;
+    private static $instance;
 
     public static function getInstance()
     {
         if ( ! isset(static::$instance)) {
             static::$instance = new static();
         }
+
         return static::$instance;
     }
-
-    private Event $event;
-    private Data $data;
-    private Request $request;
-    private Theme $theme;
-
-    private string $currentThemeName;
-    private string $currentPage;
-    private string $currentPageFile;
     
-    public function get(string $what)
+    private function __construct()
     {
-        if (property_exists($this, $what)) {
-            return $this->$what;
-        }else {
-            throw new Exception("Cannot get CMS->$what, unknown property.", 1);
+        $this->bind('event', Event::class, true);
+        $this->bind('request', request::class, true);
+        $this->bind('kernel', Kernel::class, true);
+        
+        $this->bindClosure('data', Data::class, function() {
+            return new Data(FLATTERY_PATH_DATA);
+        }, true);
+        
+        $this->bindClosure('session', Session::class, function() {
+            return Session::getInstance();
+        }, true);
+
+        $this->bindClosure('plugins', PluginLoader::class, function() {
+            return new PluginLoader(FLATTERY_PATH_PLUGINS);
+        }, true);
+
+        $this->bindClosure('theme', Theme::class, [$this, 'loadTheme'], true);
+        
+        $this->bindClosure('pages', PageManager::class, function() {
+            $extensions = data()->get('config.system', 'pageManager.extensions');
+            return new PageManager(FLATTERY_PATH_PAGES, $extensions);
+        }, true);
+
+        $this->bindClosure('console', Console::class, function() {
+            $app = new Console();
+            $app->add(new InstallPluginCommand());
+            return $app;
+        }, true);
+    }
+
+    public string $currentThemeName;
+    public string $currentPage;
+    public string $currentPageFile;
+
+    private $styles = [];
+    private $scripts = [];
+
+    /**
+     * Load the active theme.
+     */
+    public function loadTheme(): Theme
+    {
+        $name = $this->data->get('config.system', 'theme');
+        $theme = new Theme($name, FLATTERY_PATH_THEMES .'/' .$name);
+        
+        $this->addStyles($theme->getStyles());
+
+        return $theme;
+    }
+
+    public function addStyles(array $styles)
+    {
+        foreach($styles as $style) {
+            if ( ! in_array($style, $this->styles)) {
+                $this->styles[] = $style;
+            }
+        }
+    }
+
+    public function addStyle($style)
+    {
+        if ( ! in_array($style, $this->styles)) {
+            $this->styles[] = $style;
+        }
+    }
+
+    public function addScripts(array $scripts)
+    {
+        foreach($scripts as $script) {
+            $this->addScript($script);
+        }
+    }
+
+    public function addScript($script)
+    {
+        if ( ! in_array($script, $this->scripts)) {
+            $this->scripts[] = $script;
+        }
+    }
+
+    public function getStylesForView(): string
+    {
+        $styles = '';
+        foreach($this->styles as $style) {
+            $styles .= "<link rel='stylesheet' href='$style'/>";
+        }
+
+        return $styles;
+    }
+    
+    public function getScriptsForView(): string
+    {
+        $scripts = '';
+        foreach($this->scripts as $script) {
+            $scripts .= "<script src='$script'></script>";
+        }
+
+        return $scripts;
+    }
+
+    public function run(): Response
+    {
+        # handle asset requests
+        $this->kernel->attachHandler('assetRequestHandler', [$this, 'assetRequestHandler'], -10);
+
+        # handle web requests
+        $this->kernel->attachHandler('pageRequestHandler', [$this, 'pageRequestHandler']);
+        
+        # editorjs
+        $this->addScript('https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest');
+        
+        # go !
+        $response = $this->kernel->handle($this->request);
+        
+        # return the response and handle errors
+        if ( ! $response) {
+            return $this->handle404();
+        }
+
+        return $response;
+    }
+    
+    /**
+     * 
+     */
+    public function runConsole()
+    {
+        $this->console->run();
+    }
+
+    public function assetRequestHandler(Request $request, callable $next)
+    {
+        if ($request->segment(0) == 'assets') {
+            $segments = $request->getSegments();
+            array_shift($segments);
             
+            $type = array_shift($segments);
+            $file = implode('/', $segments);
+            
+            if ($type == 'themes') {
+                $file = FLATTERY_PATH_THEMES .'/' .$file;
+                
+                if ( ! file_exists($file)) {
+                    return;
+                }
+                
+                $response = new Response();
+
+                $temp = explode('.', $file);
+                $extension = end($temp);
+                
+                switch ($extension) {
+                    case "jpg":
+                        $response->setHeader('Content-type', 'image/jpeg');
+                        break;
+                    case "jpeg":
+                        $response->setHeader('Content-type', 'image/jpeg');
+                        break;
+                    case "gif":
+                        $response->setHeader('Content-type', 'image/gif');
+                        break;
+                    case "png":
+                        $response->setHeader('Content-type', 'image/png');
+                        break;
+                    case "css":
+                        $response->setHeader('Content-type', 'text/css');
+                        break;
+                    default:
+                        die;
+                }
+                
+                $response->setContent(file_get_contents($file));
+
+                return $response;
+            }
+        }else {
+            return $next();
         }
     }
-
-    public function initializeTheme(string $name)
+    
+    public function pageRequestHandler(Request $request, callable $next)
     {
-        $this->theme = new Theme($name, FLATTERY_PATH_THEMES .'/' .$name);
-        $this->currentThemeName = $name;
-    }
-
-    public function isUserLoggedIn()
-    {
-        return true;
-    }
-
-    public function isUserAdmin()
-    {
-        return true;
-    }
-
-    public function getFlatteryStylesForView(): string
-    {
-        
-    }
-
-    public function getFlatteryScriptsForView(): string
-    {
-        $str = '';
-
-        if ($this->isUserAdmin()) {
-            $str .= '<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>';
-        }
-
-        return $str;
-    }
-
-    public function run()
-    {
-        # initialize the various sub-systems...
-        $this->event = new Event();
-        $this->data = new Data(FLATTERY_PATH_DATA);
-        $this->request = new Request();
-        
-        # setup the pageManager
-        $extensions = $this->data->get('config.system', 'pageManager.extensions');
-        $this->pageManager = new PageManager(FLATTERY_PATH_PAGES, $extensions);
-
-        # load the theme
-        $this->initializeTheme($this->data->get('config.system', 'theme'));
-        
         # what page is the homepage?
         $homepage = $this->data->get('config.system', 'homepage');
         
         # get the page we are requesting
         # or just use the homepage
-        $pageName = $this->request->segment(0) ?? $homepage;
-        
+        $pageName = $request->segment(0) ?? $homepage;
+
         # check if the page exists
-        if ($this->pageManager->exists($pageName)) {
+        if ($this->pages->exists($pageName)) {
             $this->currentPage = $pageName;
-            $this->currentPageFile = $this->pageManager->getFile($pageName);
+            $this->currentPageFile = $this->pages->getFile($pageName);
+            $view = $this->getViewForPage($this->currentPage);
             
-            return $this->getViewForPage($this->currentPage);
+            $response = new Response();
+            $response->setContent($view->render());
+            
+            return $response;
         }else {
-            return $this->handle404();
+            return $next();
         }
     }
 
     public function getViewForPage(string $pageName): View
     {
-        $pageFile = $this->pageManager->getFile($pageName);
+        $pageFile = $this->pages->getFile($pageName);
+        $pageFile = $this->event->trigger('hook.flattery.getViewForPage_pageFile', $pageFile);
 
         # get the page
-        $page = $this->pageManager->loadFile($pageFile);
+        $page = $this->pages->loadFile($pageFile);
+        $page = $this->event->trigger('hook.flattery.getViewForPage_page', $page);
         
         # get the view
         $view = $this->theme->getView();
+        $view = $this->event->trigger('hook.flattery.getViewForPage_view', $view);
         
         # return the view with the page
         return $view->with([
             'page' => $page,
             'siteName' => $this->data->get('config.system', 'siteName'),
-            'flattery_styles' => '',
-            'flattery_scripts' => $this->getFlatteryScriptsForView(),
+            'styles' => $this->getStylesForView(),
+            'scripts' => $this->getScriptsForView(),
         ]);
     }
 
     protected function handle404()
     {
+        http_response_code(404);
+
         $pageName = $this->data->get('config.system', 'errorPages.404');
         if ($pageName) {
-            $view = $this->getViewForPage($pageName)->with();
+            $view = $this->getViewForPage($pageName)->with([
+                'pageName' => $pageName,
+            ]);
         }else {
-            return "Oops! I can't find that page...!";
+            return Response::make("Oops! I can't find that page...!");
         }
+    }
+
+    public function renderMenu(string $name = 'primaryNavigation')
+    {
+        $this->event->trigger('hook.flattery.renderMenu_before');
+        $items = $this->data->get('config.navigation', 'menus.' .$name);
+        
+        $str = '';
+        
+        foreach($items as $label => $link) {
+            //$link = $this->event->trigger('hook.flattery.renderMenu_link', $link);
+            $str .= "<li><a href='$link'>$label</a></li>";
+        }
+
+        return $str;
     }
 
 }

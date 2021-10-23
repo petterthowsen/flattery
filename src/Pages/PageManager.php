@@ -11,26 +11,44 @@ class PageManager {
 
     private array $extensions = [];
 
+    /**
+     * @param Page[] loaded pages
+     */
+    private array $pages = [];
+
     public function __construct(string $pagesDirectory, array $extensions = [])
     {
         $this->pagesDirectory = $pagesDirectory;
         $this->extensions = $extensions;
     }
 
-    public function getFile(string $name)
+    private function tryExtensions(string $fileName)
     {
-        $fileName = $this->pagesDirectory .'/' .$name;
-        
         foreach($this->extensions as $ext) {
             $file = $fileName .'.' .$ext;
             if (file_exists($file)) {
                 return $file;
             }
         }
+
+        return null;
+    }
+
+    public function getFile(string $name)
+    {
+        if ($this->isPageStructured($name)) {
+            return $this->tryExtensions($this->pagesDirectory .'/' .$name .'/' .$name);
+        }else {
+            return $this->tryExtensions($this->pagesDirectory .'/' .$name);
+        }
     }
 
     public function exists(string $name)
     {
+        if ($this->isPageStructured($name)) {
+            return true;
+        }
+        
         $fileName = $this->pagesDirectory .'/' .$name;
 
 
@@ -66,7 +84,8 @@ class PageManager {
     public function loadFile(string $fileName)
     {
         $src = file_get_contents($fileName);
-        $src = explode("\n===", $src, 2);
+        $src = explode("\n---", $src, 2);
+
         $settings = [
             
         ];
@@ -81,6 +100,22 @@ class PageManager {
         $settings['content'] = $content;
         
         return $settings;
+    }
+
+    protected function load(string $name)
+    {
+
+        $src = file_get_contents($fileName);
+        $src = explode("\n---", $src, 2);
+    }
+
+    public function get(string $name): Page
+    {
+        if ( ! isset($this->pages[$name])) {
+            $this->load($name);
+        }
+
+        return $this->pages[$name];
     }
 
 }

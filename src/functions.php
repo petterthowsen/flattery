@@ -1,6 +1,10 @@
 <?php
 
 use ThowsenMedia\Flattery\CMS;
+use ThowsenMedia\Flattery\Data\Data;
+use ThowsenMedia\Flattery\Event;
+use ThowsenMedia\Flattery\HTTP\Request;
+use ThowsenMedia\Flattery\HTTP\Session;
 
 /**
  * Get a nested value from an associative array using dot-notation. For example
@@ -38,7 +42,7 @@ function &array_get_reference($key, &$array) {
 		if (isset($current[$key])) {
 			$current = &$current[$key];
 		}else {
-			return null;
+			throw new \Exception("array_get_reference cannot find $key in the given array.");
 		}
 	}
 
@@ -112,35 +116,6 @@ function array_has($key, $array) {
 }
 
 
-if (substr(PHP_VERSION, 0, 1) !== '8') {
-	/**
-	 * Check if string starts with something
-	 * 
-	 * @param string haystack
-	 * @param string $needle
-	 */
-	function str_starts_with( $haystack, $needle ) {
-		$length = strlen( $needle );
-		return substr( $haystack, 0, $length ) === $needle;
-	}
-
-
-	/**
-	 * Check if string ends with something
-	 * 
-	 * @param string haystack
-	 * @param string $needle
-	 */
-	function str_ends_with( $haystack, $needle ) {
-		$length = strlen( $needle );
-		if( !$length ) {
-			return true;
-		}
-		return substr( $haystack, -$length ) === $needle;
-	}
-}
-
-
 /**
  * Var dump some data.
  */
@@ -151,11 +126,40 @@ function dump(...$vars)
 	echo '</pre>';
 }
 
-
+/**
+ * @return CMS|mixed
+ */
 function flattery(?string $name = null)
 {
 	$cms = CMS::getInstance();
 	if ($name !== null) {
-		return $cms->$name;
+		return $cms->get($name);
 	}
+
+	return $cms;
+}
+
+function session(): Session
+{
+	return flattery('session');
+}
+
+function data(): Data
+{
+	return flattery('data');
+}
+
+function request(): Request
+{
+	return flattery('request');
+}
+
+function event(): Event
+{
+	return flattery('event');
+}
+
+function pages(): PageManager
+{
+	return flattery('pages');
 }

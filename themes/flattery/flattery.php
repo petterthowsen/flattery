@@ -3,14 +3,27 @@
 <head lang="en-US">
 
     <meta charset="utf-8">
-    <title><?=$siteName?></title>
+    <title><?=$page['title'] .' | ' .$siteName?></title>
 
-    <?=$flattery_styles?>
+    <?=$styles?>
 </head>
 <body>
+    <header id="header">
 
-    <h1><?=$page['title']?></h1>
+        <a id="brand" href="./"><?=$siteName?></a>
 
-    <?=$flattery_scripts?>
+        <nav id="navigation">
+            <ul>
+                <?=flattery()->renderMenu()?>
+            </ul>
+        </nav>    
+    </header>
+
+    <main id="main">
+        <h1><?=$page['title']?></h1>
+
+        <?=$page['content']?>
+    </main>
+    <?=$scripts?>
 </body>
 </html>
