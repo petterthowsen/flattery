@@ -1,11 +1,20 @@
 <?php
 
+use ThowsenMedia\Flattery\Authentication\Auth;
 use ThowsenMedia\Flattery\CMS;
 use ThowsenMedia\Flattery\Data\Data;
 use ThowsenMedia\Flattery\Event;
 use ThowsenMedia\Flattery\HTTP\Request;
+use ThowsenMedia\Flattery\HTTP\Response;
+use ThowsenMedia\Flattery\HTTP\Routing\Router;
 use ThowsenMedia\Flattery\HTTP\Session;
 use ThowsenMedia\Flattery\Pages\PageManager;
+
+function slugify(string $string): string
+{
+	$string = strtolower($string);
+	return urlencode($string);
+}
 
 /**
  * Get a nested value from an associative array using dot-notation. For example
@@ -60,6 +69,10 @@ function array_set($key, $value, &$array) {
 	foreach($keys as $key) {
 		if (isset($current[$key])) {
 			$current = &$current[$key];
+
+			if ( ! is_array($current)) {
+				$current = [];
+			}
 		}else {
 			# set!
 			$current[$key] = $value;
@@ -68,6 +81,29 @@ function array_set($key, $value, &$array) {
 	}
 
 	$current = $value;
+}
+
+function array_put($key, $value, &$array) {
+	if (!is_array($array)) throw new Exception("array_set expects parameter 3 to be of type Array", 1);
+
+	$current = &$array;
+	$keys = explode('.', trim($key, '.'));
+
+	$i = 0;
+	foreach($keys as $key) {
+		if ($i == count($keys) - 1) {
+			$current[$key][] = $value;
+			return;
+		}
+		
+		if ( ! isset($current[$key]) || ! is_array($current[$key])) {
+			$current[$key] = [];
+		}
+
+		$current = &$current[$key];
+
+		$i ++;
+	}
 }
 
 
@@ -82,8 +118,9 @@ function array_unset($key, &$array) {
 		# last?
 		if ($count == $index) {
 			# got it, unset it
+			$value = $current[$key];
 			unset($current[$key]);
-			return;
+			return $value;
 		}
 		else if (isset($current[$key])) {
 			$current = &$current[$key];
@@ -163,4 +200,33 @@ function event(): Event
 function pages(): PageManager
 {
 	return flattery('pages');
+}
+
+function router(): Router
+{
+	return flattery('router');
+}
+
+function auth(): Auth
+{
+	return flattery('auth');
+}
+
+function redirect(string $to): Response
+{
+	return Response::redirect($to);
+}
+
+function url(string $to): string
+{
+	$base_url = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != "off") ? "https" : "http");
+	$base_url .= "://".$_SERVER['HTTP_HOST'];
+	$base_url .= str_replace(basename($_SERVER['SCRIPT_NAME']),"",$_SERVER['SCRIPT_NAME']);
+
+	return rtrim($base_url, '/') .'/' .ltrim($to, '/');
+}
+
+function asset(string $to): string
+{
+	return url('assets/' .ltrim($to, '/'));
 }

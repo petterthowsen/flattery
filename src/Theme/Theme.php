@@ -28,6 +28,26 @@ class Theme {
         return new View($file, $variables);
     }
 
+    public function renderBlock(string $name)
+    {
+        $themeName = flattery()->theme->name;
+
+        $content = '';
+
+        $data = data();
+        if ($data->has("themes.$themeName", "blocks.$name")) {
+            $content = $data->get("themes.$themeName", "blocks.$name");
+        }
+
+        slugify($name);
+
+        $str = "<div class='flattery-block' id='flattery-block-$name'>";
+        $str .= $content;
+        $str .= "</div>";
+
+        return $str;
+    }
+
     public function getConfig(string $key)
     {
         return array_get($key, $this->config);

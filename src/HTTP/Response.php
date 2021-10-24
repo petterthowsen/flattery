@@ -11,6 +11,14 @@ class Response {
         return $response;
     }
 
+    public static function redirect(string $to)
+    {
+        $response = new static();
+        $response->setHeader('Location', url($to));
+        $response->setHeader('Status-code', '303');
+        return $response;
+    }
+
     private array $headers = [];
 
     private $content;
@@ -18,11 +26,13 @@ class Response {
     public function setHeader($key, $value)
     {
         $this->headers[$key] = $value;
+        return $this;
     }
 
-    public function setContent($content)
+    public function setContent($content): self
     {
         $this->content = $content;
+        return $this;
     }
 
     public function send()
@@ -32,6 +42,12 @@ class Response {
         }
         
         echo $this->content;
+    }
+
+    public function with(string $flashKey, string $flashMessage): self
+    {
+        session()->set('flash.' .$flashKey, $flashMessage);
+        return $this;
     }
 
 }

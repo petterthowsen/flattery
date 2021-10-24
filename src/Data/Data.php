@@ -46,7 +46,7 @@ class Data {
 
     private function saveFile(string $handle)
     {
-        if ( ! $this->isFileLoaded($handle)) {
+        if ( ! isset($this->_loadedFiles[$handle])) {
             throw new \Exception("Cannot save $handle because it's not loaded.");
         }
 
@@ -96,8 +96,10 @@ class Data {
     public function has(string $file, string $key): bool
     {
         $this->loadFile($file);
-
-        return array_has($key, $this->getKey($file, $key));
+        
+        $array = &$this->_loadedFiles[$file];
+        
+        return array_has($key, $array);
     }
     
     public function contains(string $file, string $key, $needle): bool
@@ -116,14 +118,6 @@ class Data {
         if ($save) {
             $this->saveFile($file);
         }
-    }
-
-    private function startMagicGetting($handle)
-    {
-        $this->_isMagicGetting = true;
-        $this->_magicGettingHandle = $handle;
-        $this->_magicGettingKey = null;
-        return $this;
     }
 
 }

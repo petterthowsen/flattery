@@ -16,14 +16,18 @@
             <ul>
                 <?=flattery()->renderMenu()?>
             </ul>
-        </nav>    
+        </nav>
     </header>
 
     <main id="main">
         <h1><?=$page->title?></h1>
 
-        <?=$page->content?>
+        <?=$page->render()?>
     </main>
+
+    <footer id="footer" class="container py-2">
+        <?=$theme->renderBlock('footer_bottom_1')?>
+    </footer>
     <?=$scripts?>
 </body>
 </html>

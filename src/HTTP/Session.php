@@ -26,6 +26,11 @@ class Session {
         return array_set($key, $value, $_SESSION);
     }
 
+    public function put(string $key, $value)
+    {
+        return array_put($key, $value, $_SESSION);
+    }
+
     public function has(string $key): bool
     {
         return array_has($key, $_SESSION);
@@ -39,6 +44,11 @@ class Session {
     public function remove(string $key)
     {
         return array_unset($key, $_SESSION);
+    }
+
+    public function destroy()
+    {
+        return session_destroy();
     }
 
 }

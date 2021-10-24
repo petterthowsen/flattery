@@ -12,13 +12,13 @@ class StructuredPage extends Page {
 
     private string $directory;
 
-    public function __construct(string $name, string $file, array $data)
+    public function __construct(string $name, string $file, array $data, string $source)
     {
-        parent::__construct($name, $file, $data);
+        parent::__construct($name, $file, $data, $source);
         $this->directory = dirname($file);
     }
 
-    public function loadSubPages()
+    public function getPages(): array
     {
         
     }

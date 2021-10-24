@@ -2,6 +2,7 @@
 
 namespace ThowsenMedia\Flattery;
 
+use ThowsenMedia\Flattery\Authentication\Auth;
 use ThowsenMedia\Flattery\Console\Commands\InstallPluginCommand;
 use ThowsenMedia\Flattery\Console\Console;
 use ThowsenMedia\Flattery\Data\Data;
@@ -14,7 +15,9 @@ use ThowsenMedia\Flattery\View\View;
 use ThowsenMedia\Flattery\Container;
 use ThowsenMedia\Flattery\Extending\PluginLoader;
 use ThowsenMedia\Flattery\HTTP\Response;
+use ThowsenMedia\Flattery\HTTP\Routing\Router;
 use ThowsenMedia\Flattery\Pages\Page;
+use ThowsenMedia\Flattery\Pages\TextPageRenderer;
 
 /**
  * @property Event $event
@@ -24,6 +27,8 @@ use ThowsenMedia\Flattery\Pages\Page;
  * @property Session $session
  * @property PluginLoader $plugins
  * @property PageManager $pages
+ * @property Router $router
+ * @property Auth $auth
  */
 class CMS extends Container {
 
@@ -44,12 +49,18 @@ class CMS extends Container {
         $this->bind('request', request::class, true);
         $this->bind('kernel', Kernel::class, true);
         
+        $this->bind('router', Router::class, true);
+
         $this->bindClosure('data', Data::class, function() {
             return new Data(FLATTERY_PATH_DATA);
         }, true);
         
         $this->bindClosure('session', Session::class, function() {
             return Session::getInstance();
+        }, true);
+
+        $this->bindClosure('auth', Auth::class, function() {
+            return new Auth($this->session, $this->data);
         }, true);
 
         $this->bindClosure('plugins', PluginLoader::class, function() {
@@ -60,7 +71,12 @@ class CMS extends Container {
         
         $this->bindClosure('pages', PageManager::class, function() {
             $extensions = data()->get('config.system', 'pageManager.extensions');
-            return new PageManager(FLATTERY_PATH_PAGES, $extensions);
+            $pm = new PageManager(FLATTERY_PATH_PAGES, $extensions);
+
+            $pm->mapRenderer('txt', TextPageRenderer::class);
+            //$pm->mapRenderer('md', MarkdownPageRenderer::class);
+
+            return $pm;
         }, true);
 
         $this->bindClosure('console', Console::class, function() {
@@ -141,17 +157,29 @@ class CMS extends Container {
     public function run(): Response
     {
         # handle asset requests
-        $this->kernel->attachHandler('assetRequestHandler', [$this, 'assetRequestHandler'], -10);
+        $this->kernel->attachHandler('assetRequestHandler', [$this, 'assetRequestHandler'], -20);
 
-        # handle web requests
+        # handle route requests
+        $this->kernel->attachHandler('routeRequestHandler', [$this, 'routeRequestHandler'], -10);
+
+        # handle page requests
         $this->kernel->attachHandler('pageRequestHandler', [$this, 'pageRequestHandler']);
         
         # editorjs
         $this->addScript('https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest');
         
+        # load plugins
+        $this->plugins->initialize($this->data->get('config.system', 'plugins.enabled'));
+
         # go !
         $response = $this->kernel->handle($this->request);
         
+        if (is_string($response)) {
+            $response = Response::make($response);
+        }else if ($response instanceof View) {
+            $response = Response::make($response->render());
+        }
+
         # return the response and handle errors
         if ( ! $response) {
             return $this->handle404();
@@ -168,6 +196,11 @@ class CMS extends Container {
         $this->console->run();
     }
 
+    public function assetURI(string $type, string $owner, string $file): string
+    {
+        return "./assets/$type/$owner/" .ltrim($file, '/');
+    }
+
     public function assetRequestHandler(Request $request, callable $next)
     {
         if ($request->segment(0) == 'assets') {
@@ -175,49 +208,74 @@ class CMS extends Container {
             array_shift($segments);
             
             $type = array_shift($segments);
-            $file = implode('/', $segments);
+            $owner = array_shift($segments);
+            $assetPath = implode('/', $segments);
             
             if ($type == 'themes') {
-                $file = FLATTERY_PATH_THEMES .'/' .$file;
-                
-                if ( ! file_exists($file)) {
-                    return;
-                }
-                
-                $response = new Response();
-
-                $temp = explode('.', $file);
-                $extension = end($temp);
-                
-                switch ($extension) {
-                    case "jpg":
-                        $response->setHeader('Content-type', 'image/jpeg');
-                        break;
-                    case "jpeg":
-                        $response->setHeader('Content-type', 'image/jpeg');
-                        break;
-                    case "gif":
-                        $response->setHeader('Content-type', 'image/gif');
-                        break;
-                    case "png":
-                        $response->setHeader('Content-type', 'image/png');
-                        break;
-                    case "css":
-                        $response->setHeader('Content-type', 'text/css');
-                        break;
-                    default:
-                        die;
-                }
-                
-                $response->setContent(file_get_contents($file));
-
-                return $response;
+                $file = FLATTERY_PATH_THEMES;
+            }else if ($type == 'plugins') {
+                $file = FLATTERY_PATH_PLUGINS;
+                $owner = str_replace('-', ' ', $owner);
+                $owner = ucwords($owner);
+                $owner = str_replace(' ', '', $owner);
             }
+
+            $file .= '/' .$owner .'/' .$assetPath;
+
+            if ( ! file_exists($file)) {
+                return;
+            }
+            
+            $response = new Response();
+
+            $temp = explode('.', $file);
+            $extension = end($temp);
+            
+            switch ($extension) {
+                case "jpg":
+                    $response->setHeader('Content-type', 'image/jpeg');
+                    break;
+                case "jpeg":
+                    $response->setHeader('Content-type', 'image/jpeg');
+                    break;
+                case "gif":
+                    $response->setHeader('Content-type', 'image/gif');
+                    break;
+                case "png":
+                    $response->setHeader('Content-type', 'image/png');
+                    break;
+                case "css":
+                    $response->setHeader('Content-type', 'text/css');
+                    break;
+                default:
+                    die;
+            }
+            
+            $response->setContent(file_get_contents($file));
+
+            return $response;
         }else {
             return $next();
         }
     }
     
+    public function routeRequestHandler(Request $request, callable $next)
+    {
+        $routes = $this->router->getRoutes();
+
+        # loop through the routes and find a match
+        foreach($routes as $route) {
+            if ($route->matches($request)) {
+
+                $parameters = $route->extractParametersFromRequest($request);
+
+                return $route->call($parameters);
+            }
+        }
+
+        return $next();
+    }
+
     public function pageRequestHandler(Request $request, callable $next)
     {
         # what page is the homepage?
@@ -251,6 +309,7 @@ class CMS extends Container {
 
         # return the view with the page
         return $view->with([
+            'theme' => $this->theme,
             'page' => $page,
             'siteName' => $this->data->get('config.system', 'siteName'),
             'styles' => $this->getStylesForView(),
@@ -274,7 +333,7 @@ class CMS extends Container {
 
     public function renderMenu(string $name = 'primaryNavigation')
     {
-        $this->event->trigger('hook.flattery.renderMenu_before');
+        $this->event->trigger('flattery.renderMenu');
         $items = $this->data->get('config.navigation', 'menus.' .$name);
         
         $str = '';
@@ -283,7 +342,7 @@ class CMS extends Container {
             //$link = $this->event->trigger('hook.flattery.renderMenu_link', $link);
             $str .= "<li><a href='$link'>$label</a></li>";
         }
-
+        
         return $str;
     }
 

@@ -76,6 +76,7 @@ class View
 
     private function include(string $file, array $variables = [])
     {
+        $file = dirname($this->_file) .'/' .$file;
         return static::make($file, $variables)->render();
     }
 

@@ -3,6 +3,7 @@
 namespace ThowsenMedia\Flattery\Extending;
 
 use Symfony\Component\Yaml\Yaml;
+use ThowsenMedia\Flattery\View\View;
 
 class Plugin {
 
@@ -65,6 +66,12 @@ class Plugin {
     public function disable()
     {
 
+    }
+
+    public function view(string $view, array $variables = []): View
+    {
+        $file = FLATTERY_PATH_PLUGINS .'/' .get_class($this) .'/views/' .$view;
+        return View::make($file, $variables);
     }
 
 }

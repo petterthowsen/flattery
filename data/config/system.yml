@@ -8,4 +8,5 @@ pageManager:
     - md
 plugins:
   installed: []
-  enabled: []
+  enabled:
+    - ControlPanel

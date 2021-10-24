@@ -41,7 +41,7 @@ class PluginLoader {
 
         require_once $pluginFile;
 
-        if (class_exists($name)) {
+        if ( ! class_exists($name)) {
             throw new \Exception("$pluginFile does not declare class $name, is it in a namespace?");
         }
 

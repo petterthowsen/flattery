@@ -11,6 +11,8 @@ class PageManager {
 
     private array $extensions = [];
 
+    private array $renderers = [];
+    
     /**
      * @param Page[] loaded pages
      */
@@ -20,6 +22,19 @@ class PageManager {
     {
         $this->pagesDirectory = $pagesDirectory;
         $this->extensions = $extensions;
+    }
+
+    public function mapRenderer(string $extension, string $rendererClassName)
+    {
+        $this->renderers[$extension] = $rendererClassName;
+    }
+
+    /**
+     * Get the class name of the renderer that handles the given extension
+     */
+    public function getRendererFor(string $extension): string
+    {
+        return $this->renderers[$extension];
     }
 
     private function tryExtensions(string $fileName)
@@ -92,10 +107,13 @@ class PageManager {
         }
 
         if ($structured) {
-            $page = new StructuredPage($name, $file, $info);
+            $page = new StructuredPage($name, $file, $info, $content);
         }else {
-            $page = new Page($name, $file, $info);
+            $page = new Page($name, $file, $info, $content);
         }
+        
+        $renderer = $this->getRendererFor($page->getExtension());
+        $page->setRendererClass($renderer);
 
         $this->pages[$name] = $page;
 
