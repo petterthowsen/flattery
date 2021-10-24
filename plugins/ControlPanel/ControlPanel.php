@@ -66,7 +66,7 @@ class ControlPanel extends Plugin {
         if (isset($_POST['username']) and isset($_POST['password'])) {
             if (auth()->login($_POST['username'], $_POST['password'])) {
                 return redirect('/controlpanel/dashboard')
-                    ->withMessage('Welcome back, ' .$_POST['username']);
+                    ->with('message', 'Welcome back, ' .$_POST['username']);
             }
         }
 

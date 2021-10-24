@@ -50,6 +50,10 @@ class Response {
         return $this;
     }
 
-    public function withMessage(string $flashKey, )
+    public function withMessage($flashMessage): self
+    {
+        session()->put('flash.message', $flashMessage);
+        return $this;
+    }
 
 }

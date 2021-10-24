@@ -66,21 +66,21 @@ function array_set($key, $value, &$array) {
 	$current = &$array;
 	$keys = explode('.', trim($key, '.'));
 
+	$i = 0;
 	foreach($keys as $key) {
-		if (isset($current[$key])) {
-			$current = &$current[$key];
-
-			if ( ! is_array($current)) {
-				$current = [];
-			}
-		}else {
-			# set!
+		if ($i == count($keys) - 1) {
 			$current[$key] = $value;
 			return;
 		}
-	}
+		
+		if ( ! isset($current[$key]) || ! is_array($current[$key])) {
+			$current[$key] = [];
+		}
 
-	$current = $value;
+		$current = &$current[$key];
+
+		$i ++;
+	}
 }
 
 function array_put($key, $value, &$array) {
