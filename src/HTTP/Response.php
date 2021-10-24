@@ -50,4 +50,6 @@ class Response {
         return $this;
     }
 
+    public function withMessage(string $flashKey, )
+
 }
