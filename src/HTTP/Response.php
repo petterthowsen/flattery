@@ -4,10 +4,11 @@ namespace ThowsenMedia\Flattery\HTTP;
 
 class Response {
 
-    public static function make(string $content): self
+    public static function make(string $content = '', int $statusCode = 200): self
     {
         $response = new static();
         $response->setContent($content);
+        $response->setStatusCode($statusCode);
         return $response;
     }
 
@@ -27,6 +28,11 @@ class Response {
     {
         $this->headers[$key] = $value;
         return $this;
+    }
+
+    public function setStatusCode(int $code)
+    {
+        $this->setHeader('Status-code', $code);
     }
 
     public function setContent($content): self

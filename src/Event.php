@@ -40,22 +40,16 @@ class Event
         }
     }
 
-    public function trigger(string $event, $data = '_EVENT_NULL_')
+    public function trigger(string $event, ...$arguments)
     {
         if (isset($this->listeners[$event])) {
             foreach($this->listeners[$event] as $priority => &$listeners) {
                 foreach($listeners as $callable) {
-                    if ($data === '_EVENT_NULL_') {
-                        $callable();
-                    }else {
-                        $data = $callable($data);
-                    }
+                    call_user_func_array($callable, $arguments);
                 }
             }
 
         }
-
-        return $data;
     }
 
 }

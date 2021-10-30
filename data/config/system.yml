@@ -10,3 +10,4 @@ plugins:
   installed: []
   enabled:
     - ControlPanel
+    - LiveEditor

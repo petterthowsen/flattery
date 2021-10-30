@@ -26,7 +26,13 @@
     </main>
 
     <footer id="footer" class="container py-2">
-        <?=$theme->renderBlock('footer_bottom_1')?>
+        <div class="footer-bottom row">
+            <?php foreach(range(1, 4) as $i): ?>
+                <div class="col">
+                    <?=$theme->renderBlock('footer_bottom_' .$i)?>
+                </div>
+            <?php endforeach; ?>
+        </div>
     </footer>
     <?=$scripts?>
 </body>

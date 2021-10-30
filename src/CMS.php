@@ -29,6 +29,7 @@ use ThowsenMedia\Flattery\Pages\TextPageRenderer;
  * @property PageManager $pages
  * @property Router $router
  * @property Auth $auth
+ * @property Theme $theme
  */
 class CMS extends Container {
 
@@ -165,9 +166,6 @@ class CMS extends Container {
         # handle page requests
         $this->kernel->attachHandler('pageRequestHandler', [$this, 'pageRequestHandler']);
         
-        # editorjs
-        $this->addScript('https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest');
-        
         # load plugins
         $this->plugins->initialize($this->data->get('config.system', 'plugins.enabled'));
 
@@ -247,6 +245,9 @@ class CMS extends Container {
                 case "css":
                     $response->setHeader('Content-type', 'text/css');
                     break;
+                case "js":
+                    $response->setHeader('Content-type', 'text/javascript');
+                    break;
                 default:
                     die;
             }
@@ -284,11 +285,13 @@ class CMS extends Container {
         # get the page we are requesting
         # or just use the homepage
         $pageName = $request->segment(0) ?? $homepage;
+        
+        $this->event->trigger('hook.flattery.pageRequestHandler_pageName', [&$pageName]);
 
         # check if the page exists
         if ($this->pages->exists($pageName)) {
             $this->currentPage = $this->pages->get($pageName);
-
+            
             $view = $this->getViewForPage($this->currentPage);
             
             $response = new Response();

@@ -1,2 +1,3 @@
 blocks:
-  footer_bottom_1: "The Footer Bottom 1"
+    footer_bottom_1: '<p>test</p>'
+    footer_bottom_2: '<p>test</p>'

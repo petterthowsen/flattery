@@ -3,6 +3,7 @@
 namespace ThowsenMedia\Flattery\Theme;
 
 use Symfony\Component\Yaml\Yaml;
+use ThowsenMedia\Flattery\HTML\Element;
 use ThowsenMedia\Flattery\View\View;
 
 class Theme {
@@ -28,24 +29,32 @@ class Theme {
         return new View($file, $variables);
     }
 
+    public function setBlockContent(string $blockName, string $content, bool $save = true)
+    {
+        $data = data();
+        $data->set('themes.' .$this->name, "blocks.$blockName", $content, $save);
+    }
+    
     public function renderBlock(string $name)
     {
-        $themeName = flattery()->theme->name;
+        $data = data();
+
+        $themeName = $this->name;
 
         $content = '';
-
-        $data = data();
+        
         if ($data->has("themes.$themeName", "blocks.$name")) {
             $content = $data->get("themes.$themeName", "blocks.$name");
         }
-
-        slugify($name);
-
-        $str = "<div class='flattery-block' id='flattery-block-$name'>";
-        $str .= $content;
-        $str .= "</div>";
-
-        return $str;
+        
+        $element = Element::div([
+            'id' => 'flattery-block-' .slugify($name),
+            'class' => 'flattery-block',
+        ])->innerHtml($content);
+        
+        event()->trigger('hook.flattery.theme.renderBlock', $this, $name, $content, $element);
+        
+        return $element;
     }
 
     public function getConfig(string $key)
