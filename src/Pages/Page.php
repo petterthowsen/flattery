@@ -33,7 +33,7 @@ class Page {
         $this->name = $name;
         $this->file = $file;
         $this->_data = $data;
-        $this->source = $source;
+        $this->_source = $source;
 
         $exploded = explode('.', $file);
         $this->extension = array_pop($exploded);
@@ -47,7 +47,7 @@ class Page {
     public function getRenderer(): PageRendererInterface
     {
         if ( ! isset($this->renderer)) {
-            $this->renderer = new $this->rendererClass($this->source);
+            $this->renderer = new $this->rendererClass($this);
         }
 
         return $this->renderer;
@@ -71,6 +71,11 @@ class Page {
     public function getData(string $key)
     {
         return array_get($key, $this->_data);
+    }
+
+    public function getSource(): string
+    {
+        return $this->_source;
     }
 
     public function __get(string $key)

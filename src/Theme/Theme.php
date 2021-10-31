@@ -35,6 +35,17 @@ class Theme {
         $data->set('themes.' .$this->name, "blocks.$blockName", $content, $save);
     }
     
+    public function isBlockEmpty(string $name)
+    {
+        $value = null;
+
+        if (data()->has('themes.' .$this->name, 'blocks.' .$name)) {
+            $value = data()->get('themes.' .$this->name, 'blocks.' .$name);
+        }
+        
+        return ! $value or $value == '<p><br></p>';
+    }
+
     public function renderBlock(string $name)
     {
         $data = data();

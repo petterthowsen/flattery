@@ -127,6 +127,10 @@
             block: blockName,
             content: content
         }));
+
+        this.contentElement.innerHTML = content;
+
+        this.element.classList.remove('is-editing');
     };
 
     window.BlockEditor.prototype.cancel = function() {

@@ -24,6 +24,9 @@
 .flattery-block--actions {
     display: none;
 }
+.flattery-block:not(.is-editing) > .ql-toolbar, .flattery-block:not(.is-editing) > .ql-container {
+    display: none;
+}
 .flattery-block.is-editing {
     min-height: 200px;
     min-width: 265px;

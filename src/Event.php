@@ -45,11 +45,13 @@ class Event
         if (isset($this->listeners[$event])) {
             foreach($this->listeners[$event] as $priority => &$listeners) {
                 foreach($listeners as $callable) {
-                    call_user_func_array($callable, $arguments);
+                    $arguments = call_user_func_array($callable, $arguments);
                 }
             }
 
         }
+
+        return $arguments;
     }
 
 }

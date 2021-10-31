@@ -11,7 +11,7 @@ class Element {
 
     private $_children = [];
 
-    public ?string $innerHtml;
+    public ?string $innerHtml = null;
 
     public function __construct(string $tagName, bool $selfClosing = false, array $attributes = [])
     {
