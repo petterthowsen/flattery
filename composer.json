@@ -1,0 +1,22 @@
+{
+    "name": "thowsenmedia/flattery",
+    "description": "Simple but powerful Flat File CMS",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "ThowsenMedia\\Flattery\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Petter L. Thowsen",
+            "email": "petterthowsen@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "symfony/yaml": "^5.3",
+        "symfony/console": "^5.3"
+    }
+}

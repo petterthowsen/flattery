@@ -1,0 +1,3 @@
+title: Introduction
+---
+This is an introduction to Flattery CMS

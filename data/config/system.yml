@@ -1,0 +1,13 @@
+homepage: home
+siteName: Flattery CMS
+theme: flattery
+pageManager:
+  extensions:
+    - php
+    - txt
+    - md
+plugins:
+  installed: []
+  enabled:
+    - ControlPanel
+    - LiveEditor

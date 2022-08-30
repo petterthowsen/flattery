@@ -1,0 +1,13 @@
+name: flattery
+description: A Simple Theme
+styles:
+  - css/flattery.css
+blocks:
+  - footer_top_1
+  - footer_top_2
+  - footer_top_3
+  - footer_top_4
+  - footer_bottom_1
+  - footer_bottom_2
+  - footer_bottom_3
+  - footer_bottom_4

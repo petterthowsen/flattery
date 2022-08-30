@@ -1,0 +1,87 @@
+body {
+    font-family: Verdana, sans-serif;
+}
+
+.btn {
+    background-color: #444;
+    border: 1px solid #bbb;
+    text-decoration: none;
+    color: white;
+    padding: 0.4rem 0.6rem;
+    border-radius: 2px;
+    font-size: 1.2rem;
+}
+
+.btn:hover {
+    background-color: #555;
+}
+
+.btn-primary {
+    background-color: #432f58;
+}
+.btn-primary:hover {
+    background-color: #5f4080;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.py-2 {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+.py-4 {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+}
+
+#header {
+    border-bottom: 1px solid #bbb;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 1rem 0;
+}
+
+#brand {
+    display: block;
+    padding: 1rem;
+    margin-right: 1rem;
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+#navigation ul {
+    padding-left: 0;
+}
+#navigation ul li {
+    display: inline-block;
+    list-style: none;
+    list-style-type: none;
+}
+#navigation ul li a {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+}
+
+#main {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+#footer .row {
+    margin-bottom: 1rem;
+    display: flex;
+}
+
+#footer .row .col {
+    flex: 1;
+    padding: 0 0.5rem;
+}
