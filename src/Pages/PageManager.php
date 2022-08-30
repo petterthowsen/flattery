@@ -29,8 +29,9 @@ class PageManager {
     {
         $self = $this;
         
-        $router->get('/', function() {
-            return $self->load(data('config.system', 'homepage'));
+        $router->get('/', function() use($self) {
+            $homepage = data()->get('config.system', 'homepage');
+            return $self->load($homepage);
         });
 
         $this->registerRoutesRecursively($router, FLATTERY_PATH_PAGES, "/");
