@@ -35,4 +35,14 @@ class Request {
         return $this->method;
     }
 
+    public function starts_with(string $uri): bool
+    {
+        return str_starts_with($this->rawQuery, $uri);
+    }
+
+    public function is(string $uri): bool
+    {
+        return trim($this->rawQuery, '/') == trim($uri, '/');
+    }
+
 }

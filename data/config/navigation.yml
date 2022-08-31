@@ -1,5 +1,5 @@
 menus:
   primaryNavigation:
-    Home: "./"
-    Docs: "./docs"
+    Home: "/"
+    Docs: "/docs"
     GitHub: "#"

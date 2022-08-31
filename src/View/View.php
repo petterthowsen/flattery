@@ -29,6 +29,8 @@ class View
 
     private string $_file;
 
+    private string $_source;
+
     public array $_variables = [];
 
     public static function addGlobalVar(string $variable, $value)
@@ -68,6 +70,16 @@ class View
         return new static($file, $variables);
     }
 
+    public function overrideSource(string $source)
+    {
+        $this->_source = $source;
+    }
+
+    public function getSource(): string
+    {
+        return $this->_source;
+    }
+
     public function with($variables): View
     {
         $this->_variables = array_merge($this->_variables, $variables);
@@ -85,7 +97,11 @@ class View
         extract(static::$globalVars);
         extract($this->_variables);
         ob_start();
-        include $this->_file;
+        if (isset($this->_source)) {
+            eval('?>' .$this->_source);
+        }else {
+            include $this->_file;
+        }
         return ob_get_clean();
     }
 

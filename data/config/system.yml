@@ -6,6 +6,7 @@ pageManager:
     - php
     - txt
     - md
+    - html
 plugins:
   installed: []
   enabled:

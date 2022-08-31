@@ -37,13 +37,13 @@ class Theme {
     
     public function isBlockEmpty(string $name)
     {
-        $value = null;
-
         if (data()->has('themes.' .$this->name, 'blocks.' .$name)) {
             $value = data()->get('themes.' .$this->name, 'blocks.' .$name);
+            $text = strip_tags($value);
+            return strlen($text) == 0;
+        }else {
+            return true;
         }
-        
-        return ! $value or $value == '<p><br></p>';
     }
 
     public function renderBlock(string $name)
@@ -63,6 +63,10 @@ class Theme {
             'class' => 'flattery-block',
         ])->innerHtml($content);
         
+        if ($this->isBlockEmpty($name)) {
+            $element->addClass('flattery-block-empty');
+        }
+
         event()->trigger('hook.flattery.theme.renderBlock', $this, $name, $content, $element);
         
         return $element;
@@ -78,7 +82,7 @@ class Theme {
         $styles = [];
 
         foreach($this->getConfig('styles') as $style) {
-            $styles[] = './assets/themes/' .$this->name .'/' .$style;
+            $styles[] = '/assets/themes/' .$this->name .'/' .$style;
         }
 
         return $styles;

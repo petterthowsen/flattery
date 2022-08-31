@@ -160,11 +160,24 @@ class Route {
     {
         $str = $this->httpMethod .':';
 
-        foreach($this->segments as $segment => $options) {
-            $str .= $segment .'/';
+        if (count($this->segments) == 0) {
+            $str .= '/';
+        }else {
+            foreach($this->segments as $segment => $options) {
+                $str .= $segment .'/';
+            }
+            
+            $str = rtrim($str, '/');
         }
 
-        $str = rtrim($str, '/');
+        
+        $str .= ' -> ';
+
+        if ($this->callable != null) {
+            $str .= 'callable';
+        }else {
+            $str .= $this->controllerClassName .'@' .$this->controllerMethodName;
+        }
 
         return $str;
     }

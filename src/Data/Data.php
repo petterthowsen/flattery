@@ -86,9 +86,13 @@ class Data {
         array_set($key, $value, $this->_loadedFiles[$file]);
     }
 
-    public function get(string $file, string $key, string $defaultReturnValue = null)
+    public function get(string $file, string $key = null, string $defaultReturnValue = null)
     {
         $this->loadFile($file, false);
+
+        if ($key == null) {
+            return $this->_loadedFiles[$file];
+        }
 
         return $this->getKey($file, $key) ?? $defaultReturnValue;
     }
@@ -110,9 +114,9 @@ class Data {
         return in_array($needle, $array, true);
     }
 
-    public function set(string $file, string $key, $value, bool $save = false)
+    public function set(string $file, string $key, $value, bool $save = true)
     {
-        $this->loadFile($file, $key);
+        $this->loadFile($file);
         $this->setKey($file, $key, $value);
 
         if ($save) {

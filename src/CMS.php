@@ -3,8 +3,10 @@
 namespace ThowsenMedia\Flattery;
 
 use ThowsenMedia\Flattery\Authentication\Auth;
-use ThowsenMedia\Flattery\Console\Commands\InstallPluginCommand;
 use ThowsenMedia\Flattery\Console\Console;
+use ThowsenMedia\Flattery\Console\Commands\InstallPluginCommand;
+use ThowsenMedia\Flattery\Console\Commands\CreateUserCommand;
+use ThowsenMedia\Flattery\Console\Commands\ListRoutesCommand;
 use ThowsenMedia\Flattery\Data\Data;
 use ThowsenMedia\Flattery\HTTP\Kernel;
 use ThowsenMedia\Flattery\HTTP\Request;
@@ -18,6 +20,9 @@ use ThowsenMedia\Flattery\HTTP\Response;
 use ThowsenMedia\Flattery\HTTP\Routing\Router;
 use ThowsenMedia\Flattery\Pages\Page;
 use ThowsenMedia\Flattery\Pages\TextPageRenderer;
+use ThowsenMedia\Flattery\Pages\PhpPageRenderer;
+use ThowsenMedia\Flattery\Pages\HtmlPageRenderer;
+use ThowsenMedia\Flattery\Pages\MarkdownPageRenderer;
 
 /**
  * @property Event $event
@@ -73,16 +78,20 @@ class CMS extends Container {
         $this->bindClosure('pages', PageManager::class, function() {
             $extensions = data()->get('config.system', 'pageManager.extensions');
             $pm = new PageManager(FLATTERY_PATH_PAGES, $extensions);
-
+            
             $pm->mapRenderer('txt', TextPageRenderer::class);
-            //$pm->mapRenderer('md', MarkdownPageRenderer::class);
-
+            $pm->mapRenderer('html', HtmlPageRenderer::class);
+            $pm->mapRenderer('md', MarkdownPageRenderer::class);
+            $pm->mapRenderer('php', PhpPageRenderer::class);
+            
             return $pm;
         }, true);
 
         $this->bindClosure('console', Console::class, function() {
             $app = new Console();
             $app->add(new InstallPluginCommand());
+            $app->add(new CreateUserCommand());
+            $app->add(new ListRoutesCommand());
             return $app;
         }, true);
     }
@@ -192,17 +201,19 @@ class CMS extends Container {
         return $response;
     }
     
-    /**
-     * 
-     */
+    
     public function runConsole()
     {
+        # init plugins & reigster page routes
+        $this->plugins->initialize($this->data->get('config.system', 'plugins.enabled'));
+        $this->pages->registerRoutes($this->router);
+        
         $this->console->run();
     }
 
     public function assetURI(string $type, string $owner, string $file): string
     {
-        return "./assets/$type/$owner/" .ltrim($file, '/');
+        return "/assets/$type/$owner/" .ltrim($file, '/');
     }
 
     public function assetRequestHandler(Request $request, callable $next)

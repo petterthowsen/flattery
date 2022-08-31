@@ -6,6 +6,10 @@ use ThowsenMedia\Flattery\Data\Data;
 
 class PluginLoader {
 
+    public const ERR_NO_PLUGIN = 1;
+    public const ERR_NO_PLUGIN_DIR = 2;
+    public const ERR_NO_PLUGIN_FILE = 3;
+
     private string $pluginsDirectory;
 
     private array $plugins = [];
@@ -21,6 +25,27 @@ class PluginLoader {
     public function isLoaded($name)
     {
         return isset($this->plugins[$name]);
+    }
+
+    /**
+     * @return bool|int true if it exists, or int: one of the plugin error constants.
+     */
+    public function exists(string $name): mixed
+    {
+        if (isset($this->plugins[$name]))
+            return true;
+        
+        $pluginDir = $this->pluginsDirectory .'/' .$name;
+        $pluginFileName = $name .'.php';
+        $pluginFile = $pluginDir .'/' .$pluginFileName;
+
+        if ( ! is_dir($pluginDir)) {
+            return ERR_NO_PLUGIN_DIR;
+        }else if ( ! file_exists($pluginFile)) {
+            return ERR_NO_PLUGIN_FILE;
+        }
+
+        return false;
     }
 
     public function loadPlugin(string $name)
@@ -80,6 +105,7 @@ class PluginLoader {
 
     /**
      * Install a plugin
+     * @todo handle dependencies
      */
     public function install(string $name)
     {

@@ -138,11 +138,30 @@
         this.element.classList.remove('is-editing');
     };
 
-    // get the blocks
+    // create block editor for all blocks
     let $blocks = document.querySelectorAll(".flattery-block");
 
     $blocks.forEach(($block) => {
         $block.flatteryBlockEditor = new BlockEditor($block.id);
     });
+
+    // add the mode toggler
+    // create the main edit toggler in the bottom left of the page
+    let editModeToggler = document.createElement("button");
+    editModeToggler.innerText = "Edit";
+    editModeToggler.classList.add("flattery-liveeditor--mode-toggler");
+
+    editModeToggler.addEventListener('click', function() {
+        let clazz = "flattery--liveeditor-edit-mode";
+        if (document.body.classList.contains(clazz)) {
+            document.body.classList.remove(clazz);
+            editModeToggler.innerText = "Edit";
+        }else {
+            document.body.classList.add(clazz);
+            editModeToggler.innerText = "Stop Editing";
+        }
+    });
+
+    document.body.appendChild(editModeToggler);
 
 })(window, document);

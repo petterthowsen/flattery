@@ -22,6 +22,9 @@ class Page {
      */
     private string $extension;
 
+    /**
+     * The source code (after the --- at the top, if it exists.)
+     */
     private string $_source;
 
     private array $_data;

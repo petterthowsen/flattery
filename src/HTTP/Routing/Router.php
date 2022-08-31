@@ -7,7 +7,7 @@ class Router {
     /**
      * @property Route[]
      */
-    protected array $routes;
+    protected array $routes = [];
 
     private function makeRoute(string $httpMethod, string $uri, $target)
     {

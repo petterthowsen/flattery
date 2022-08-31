@@ -1,5 +1,5 @@
 pelatho:
-    email: petter@thowsenmedia.com
-    password: $2y$10$JLQa9hJdPn5E171ymtg9aO90DpWuFaES2bMc7HAE.HIzSeqevOehS
     admin: true
-    auth_token: 9358e5b6d4b86ec8e79f6142dd134265
+    email: petterthowsen@gmail.com
+    password: $2y$10$tBo7mdv5WSLZLdviBXdf5.aj0n6GLRu0zj7UMAcZSsQSvCBapQEJ2
+    auth_token: b5ffd54eb4c072121b24d171e74ff324

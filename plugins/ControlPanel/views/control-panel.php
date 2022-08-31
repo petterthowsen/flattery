@@ -2,7 +2,7 @@
 
 <nav id="navigation">
     <ul>
-        <li><a href="#">Dashboard</a></li>
+        <li><a href="<?=url('controlpanel/dashboard')?>">Dashboard</a></li>
     </ul>
 </nav>
 

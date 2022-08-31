@@ -52,11 +52,15 @@ class PageManager {
                         return $self->load($route .'/' .$file);
                     });
                 }else {
-                    $this->registerRoutesRecursively($router, $dir .'/' .$file, $route);
+                    $name = explode('.', $file)[0];
+                    $this->registerRoutesRecursively($router, $dir .'/' .$file, $route .'/' .$name);
                 }
             }else {
                 $pageName = explode('.', $file)[0];
-                #$router->get($route .'/' .$)
+                $pageRoute = $route .'/' .$pageName;
+                $router->get($pageRoute, function() use($self, $pageRoute) {
+                    return $self->load($pageRoute);
+                });
             }
         }
     }

@@ -76,12 +76,32 @@ body {
     margin: 0 auto;
 }
 
+#footer {
+    position: fixed;
+    bottom: 0px;
+    font-size: 0.9rem;
+    width: 100%;
+}
+
 #footer .row {
+    width: 960px;
+    margin: 0 auto;
     margin-bottom: 1rem;
     display: flex;
 }
 
-#footer .row .col {
+/* show non-empty blocks */
+#footer .row .flattery-block:not(.flattery-block-empty) {
     flex: 1;
     padding: 0 0.5rem;
+}
+
+/* hide empty blocks when not editing */
+#footer .row .flattery-block.flattery-block-empty {
+    flex: 0;
+}
+
+/* in edit-mode, show empty blocks also */
+body.flattery--liveeditor-edit-mode #footer .row .flattery-block {
+    flex: 1;
 }

@@ -4,7 +4,7 @@ namespace ThowsenMedia\Flattery\Pages;
 
 use ThowsenMedia\Flattery\HTML\Element;
 
-class TextPageRenderer implements PageRendererInterface {
+class HtmlPageRenderer implements PageRendererInterface {
 
     private Page $page;
 
@@ -17,11 +17,8 @@ class TextPageRenderer implements PageRendererInterface {
 
     public function render(): string
     {
-        $html = $this->page->getSource();
-        $html = str_replace("\n", "<br>", $html);
-        
         $element = new Element("div");
-        $element->innerHtml = $html;
+        $element->innerHtml = $this->page->getSource();
 
         $element->setAttribute('id', 'flattery-page--' .slugify($this->page->getName()));
         $element->addClass('flattery--page');

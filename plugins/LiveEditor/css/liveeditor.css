@@ -1,23 +1,37 @@
-.flattery-block {
+/* the global edit mote toggler */
+.flattery-liveeditor--mode-toggler {
+    position: fixed;
+    bottom: 1rem;
+    left: 1rem;
+}
+
+/* blocks when editing is enabled */
+body.flattery--liveeditor-edit-mode .flattery-block {
     outline: 1px dashed rgba(0.5, 0.5, 0.5, 0.5);
     outline-offset: 1px;
     min-height: 10px;
     transition: all 300ms;
     position: relative;
+    width: 100%;
 }
-.flattery-block:hover {
+/* when hovering */
+body.flattery--liveeditor-edit-mode .flattery-block:hover {
     outline-color: rgba(0.5, 0.5, 0.5, 1);
     outline-offset: 2px;
 }
-.flattery-block--content {
-    opacity: 1;
-    transition: 0.5s all;
-    cursor: pointer;
+body.flattery--liveeditor-edit-mode .flattery-block:not(.is-editing) {
     min-height: 10px;
+    min-width: 20px;
+}
+body.flattery--liveeditor-edit-mode .flattery-block--content {
+    opacity: 1;
+    transition: 0.5s opacity;
+    cursor: pointer;
+    height: 100%;
 }
 .flattery-block--editor {
     opacity: 0;
-    transition: 0.5s all;
+    transition: 0.5s opacity;
     min-width: 100%;
     height: 0px;
 }
