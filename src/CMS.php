@@ -178,6 +178,11 @@ class CMS extends Container {
         # load plugins
         $this->plugins->initialize($this->data->get('config.system', 'plugins.enabled'));
         
+        # load routes from app dir
+        if (file_exists(FLATTERY_PATH_APP .'/routes.php')) {
+            require FLATTERY_PATH_APP .'/routes.php';
+        }
+
         # init page routes
         $this->pages->registerRoutes($this->router);
 
@@ -294,6 +299,9 @@ class CMS extends Container {
         return $next();
     }
 
+    /**
+     * @deprecated in favor of Router
+     */
     public function pageRequestHandler(Request $request, callable $next)
     {
         # what page is the homepage?

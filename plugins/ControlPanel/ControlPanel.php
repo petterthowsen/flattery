@@ -31,7 +31,7 @@ class ControlPanel extends Plugin {
 
     public function uninstall()
     {
-
+        
     }
 
     public function run()
@@ -52,7 +52,9 @@ class ControlPanel extends Plugin {
 
     public function getLogin()
     {
-        return $this->view('login.php');
+        $view = $this->view('login.php');
+        event()->trigger('hook.flattery.ControlPanel.getLogin', [&$view]);
+        return $view;
     }
 
     public function getLogout()
