@@ -11,6 +11,7 @@ use ThowsenMedia\Flattery\Data\Data;
 use ThowsenMedia\Flattery\HTTP\Kernel;
 use ThowsenMedia\Flattery\HTTP\Request;
 use ThowsenMedia\Flattery\HTTP\Session;
+use ThowsenMedia\Flattery\HTTP\Input;
 use ThowsenMedia\Flattery\Pages\PageManager;
 use ThowsenMedia\Flattery\Theme\Theme;
 use ThowsenMedia\Flattery\View\View;
@@ -23,6 +24,8 @@ use ThowsenMedia\Flattery\Pages\TextPageRenderer;
 use ThowsenMedia\Flattery\Pages\PhpPageRenderer;
 use ThowsenMedia\Flattery\Pages\HtmlPageRenderer;
 use ThowsenMedia\Flattery\Pages\MarkdownPageRenderer;
+use ThowsenMedia\Flattery\Validation\Validator;
+use ThowsenMedia\Flattery\Validation\BasicRulesProvider;
 
 /**
  * @property Event $event
@@ -56,6 +59,8 @@ class CMS extends Container {
         $this->bind('kernel', Kernel::class, true);
         
         $this->bind('router', Router::class, true);
+
+        $this->bind('input', Input::class, true);
 
         $this->bindClosure('data', Data::class, function() {
             return new Data(FLATTERY_PATH_DATA);
@@ -94,6 +99,16 @@ class CMS extends Container {
             $app->add(new ListRoutesCommand());
             return $app;
         }, true);
+
+        $this->bindClosure('validator', Validator::class, function() {
+            if (count(Validator::getRuleTypes()) == 0) {
+                BasicRulesProvider::register();
+            }
+
+            $validator = new Validator();
+
+            return $validator;
+        }, false);
     }
 
     public Page $currentPage;

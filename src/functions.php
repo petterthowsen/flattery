@@ -9,6 +9,8 @@ use ThowsenMedia\Flattery\HTTP\Response;
 use ThowsenMedia\Flattery\HTTP\Routing\Router;
 use ThowsenMedia\Flattery\HTTP\Session;
 use ThowsenMedia\Flattery\Pages\PageManager;
+use ThowsenMedia\Flattery\Validation\Validator;
+use ThowsenMedia\Flattery\HTTP\Input;
 
 function slugify(string $string): string
 {
@@ -192,6 +194,15 @@ function request(): Request
 	return flattery('request');
 }
 
+function input(...$keys): Input|array
+{
+	if (count($keys) > 0) {
+		return flattery('input')->get($keys);
+	}else {
+		return flattery('input');
+	}
+}
+
 function event(): Event
 {
 	return flattery('event');
@@ -215,6 +226,14 @@ function auth(): Auth
 function redirect(string $to): Response
 {
 	return Response::redirect($to);
+}
+
+function validator(array $rules = []): Validator
+{
+	$validator = flattery('validator');
+	$validator->setRules($rules);
+	
+	return $validator;
 }
 
 function url(string $to): string

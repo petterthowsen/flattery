@@ -40,11 +40,18 @@ class Validator
         $rules = [];
         foreach(explode('|', $rulesList) as $rule)
         {
-            list($rule, $options) = explode(':', $rule, 2);
-            $options = preg_split("/, ?/", $options);
-            if ($options == false) {
+            $ruleData = explode(':', $rule, 2);
+            if (count($ruleData) > 1) {
+                list($rule, $options) = explode(':', $rule, 2);
+                
+                $options = preg_split("/, ?/", $options);
+                if ($options == false) {
+                    $options = [];
+                }
+            }else {
                 $options = [];
-            }
+            }       
+            
             $rules[] = ['rule' => $rule, 'options' => $options];
         }
         return $rules;
@@ -54,7 +61,17 @@ class Validator
 
     protected array $rules;
 
-    public function __construct(array $rules = [])
+    protected array $errors = [];
+    
+    public function __construct(array $rules = null)
+    {
+        if (isset($rules)) {
+            $this->rawRules = $rules;
+            $this->rules = static::parseRulesArray($this->rawRules);
+        }
+    }
+
+    public function setRules(array $rules)
     {
         $this->rawRules = $rules;
         $this->rules = static::parseRulesArray($this->rawRules);
@@ -63,6 +80,37 @@ class Validator
     public function getRules():array
     {
         return $this->rules;
+    }
+    
+    public function fails(): bool
+    {
+        return ! $this->passes();
+    }
+
+    public function passes(array $values): bool
+    {
+        foreach($values as $field => $value)
+        {
+            if (isset($this->rules[$field])) {
+                $rules = $this->rules[$field];
+                $error = static::runRule($rule['rule'], $rule['options'], $value);
+            }
+        }
+
+        return count($this->errors) == 0;
+    }
+    
+    protected function addError(string $field, string $message)
+    {
+        if ( ! isset($this->errors[$field]))
+            $this->errors[$field] = [];
+        
+        $this->errors[$field][] = $message;
+    }
+
+    public function getErrors():array
+    {
+        return $this->errors;
     }
 
 }
