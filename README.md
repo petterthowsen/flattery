@@ -38,8 +38,8 @@ In addition to the flattery() function, there are helper functions for each of t
 
 The file structure is fairly simple:
 
-- /data contains the "database", each folder is a category, each file a "table" although these terms are loosely defined. Currently subfolders are not possible.
-- /pages contains the pages
+- /app/data contains the "database", each folder is a category, each file a "table" although these terms are loosely defined. Currently subfolders are not possible.
+- /app/pages contains the pages
 - /plugins contain plugins
 - /themes contain themes
 - /vendor is the composer dependencies (see getcomposer.org)

@@ -1,5 +1,5 @@
 menus:
   primaryNavigation:
     Home: "/"
-    Docs: "/docs"
-    GitHub: "#"
+    Structured Page: "/structured-page"
+    Help: "https://flattery.thowsenmedia.com"

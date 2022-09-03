@@ -1,0 +1,3 @@
+title: Child Page
+---
+This is a child page of a structured page. This is great for documentation, knowledgebases or other structural content.

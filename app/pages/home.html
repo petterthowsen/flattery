@@ -1,15 +1,51 @@
-title: Powerful Flat-File CMS
+title: Welcome to Flattery
 ---
-<p class="lead">Flattery is a new 'Flat File' CMS that's dead simple to use, but offers many features out of the box - including themes and plugins.</p>
+<p class="lead">Flattery is ready to go!</p>
+<p>Start by adding pages to the <code>pages</code> directory! (This page is <code>pages/home.html</code>)</p>
+<p>The menu at the top here is the <code>primaryNavigation</code> menu. Edit it in app/data/config/navigation.yml</p>
+
+<h2>Adding users</h2>
+<p>
+    To add a user, open the directory of flattery in your terminal and run
+    <code>php flattery.php users:create</code>. Alternatively, add the user in <code>app/data/users.yml</code>.
+</p>
+
+<h2>Custom routes</h2>
+<p>
+    If you need a page to respond to POST requests for handling form requests, consider defining a route in <code>app/routes.php</code>.
+    It works similarly to Laravel - if that's greek to you, it's quite simple:
+</p>
+
+<h4>Defining a custom route:</h4>
+<ol>
+    <li>Open <code>app/routes.php</code></li>
+    <li>Here, use <code>router()</code> to get Flattery's <code>ThowsenMedia/Flattery/HTTP/Router</code> instance.</li>
+    <li>Define routes by calling GET or POST to the router, and giving it a URI and a callback function.</li>
+    <li>For example: <code>router()->get('/hello', function() {return 'world!';});</code></li>
+</ol>
+
+<h2>Theming</h2>
+<p>For more advanced usage, you can copy this theme (themes/strappery) to make your own:</p>
+<ol>
+    <li>Copy themes/strappery to themes/mytheme</li>
+    <li>Rename themes/mytheme and
+        <ol>
+            <li>Rename strappery.php to mytheme.php, and the strappery.yml to mytheme.yml</li>
+        </ol>
+    </li>
+</ol>
+
+<h2>Blocks</h2>
+<p>
+    Blocks are sections of a theme template whose content can be defined either in data/themes/[themename].yml (in the blocks section)
+    or by defining the block as a template file in app/blocks/[block_name].php if dynamic content is needed.
+</p>
 
 <p>
-    Some of the highlights:
+    To see which blocks are available in a given theme, open the theme's YML file in <code>themes/[theme]/[theme].yml</code>.
 </p>
-<ul>
-    <li>Configuration and data is stored in .yml files</li>
-    <li>Pages can be text files, markdown or php files for dynamic functionality.</li>
-    <li>Live Page & Block Editing.</li>
-</ul>
 
-
-<a href="/docs" class="btn btn-primary">Get Started</a>
+<h2>Plugins</h2>
+<p>
+    Plugins are stored in <code>/plugins</code>. They consist of a single class file and a yml file. Open up the <code>/plugins</code> and take a look!
+</p>

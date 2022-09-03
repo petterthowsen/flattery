@@ -1,4 +1,3 @@
 blocks:
-  footer_top_1: "Hello, World!"
-  footer_bottom_1: "&copy; 2022 - Thowsen Media"
-  header_right: 'hello!'
+  footer_top_1: "footer_top_1, from <code>app/data/themes/strappery.yml</code>"
+  header_right: 'header_right, from <code>app/data/themes/strappery.yml</code>'
