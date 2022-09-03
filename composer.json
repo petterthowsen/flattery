@@ -2,7 +2,7 @@
     "name": "thowsenmedia/flattery",
     "description": "Simple, extendable Flat File CMS",
     "type": "library",
-    "license": "proprietary copyleft",
+    "license": "proprietary",
     "autoload": {
         "psr-4": {
             "ThowsenMedia\\Flattery\\": "src/"

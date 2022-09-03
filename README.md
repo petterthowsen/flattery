@@ -48,3 +48,6 @@ The file structure is fairly simple:
 The folder structure can be changed to your liking, but must be updated in the bootstrap.php.
 
 There's also a flattery.php file which is the console. To use it, run `php flattery.php`, there will be commands to manage plugins, themes etc.
+
+# License
+see LICENSE.md
