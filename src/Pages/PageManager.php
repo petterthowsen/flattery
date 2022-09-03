@@ -60,9 +60,11 @@ class PageManager {
                     foreach($children as $child_file) {
                         if ($child_file == '.' || $child_file == '..') continue;
                         $pageName = explode('.', $child_file)[0];
+                        dump($pageName);
                         $pagePath = $pageRoute .'/children/' .$pageName;
-                        $pageRoute = $pageRoute .'/' .$pageName;
-                        $router->get($pageRoute, function() use($self, $pagePath) {
+                        dump($pagePath);
+                        $child_pageRoute = $pageRoute .'/' .$pageName;
+                        $router->get($child_pageRoute, function() use($self, $pagePath) {
                             return $self->load($pagePath);
                         });
                     }

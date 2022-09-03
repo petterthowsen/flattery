@@ -1,5 +1,7 @@
 Yet another flat file CMS in PHP.
 
+[Flattery Website](https://flattery.thowsenmedia.com)
+
 Beware that Flattery is NOT ready for production. It is not feature-complete and may change drastically at any moment.
 
 # At a glance
