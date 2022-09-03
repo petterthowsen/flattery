@@ -38,6 +38,12 @@ class Data {
         return $file;
     }
 
+    public function fileExists(string $handle):bool
+    {
+        $file = $this->_data_dir .'/' .$this->sanitizeFileHandleString($handle);
+        return file_exists($file);
+    }
+
     public function isFileLoaded(string $handle)
     {
         $file = $this->sanitizeFileHandleString($handle);

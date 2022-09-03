@@ -1,0 +1,37 @@
+.strappery--header {
+    background-color: #ddd;
+}
+
+.strappery--page-title {
+    padding-bottom: 3rem;
+}
+
+.strappery--main {
+    padding: 3rem 0;
+    background-color: white;
+}
+
+.strappery--footer, body {
+    background-color: #ddd;
+}
+
+/* show non-empty blocks */
+.strappery--footer .strappery--row {
+    display: flex;
+    flex-direction: row;
+}
+/* show non-empty blocks */
+.strappery--footer .strappery--row .flattery-block:not(.flattery-block-empty) {
+    flex: 1;
+    padding: 0 0.5rem;
+}
+
+/* hide empty blocks when not editing */
+.strappery--footer .strappery--row .flattery-block.flattery-block-empty {
+    flex: 0;
+}
+
+/* in edit-mode, show empty blocks also */
+body.flattery--liveeditor-edit-mode .strappery--footer .strappery--row .flattery-block {
+    flex: 1;
+}

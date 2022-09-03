@@ -1,0 +1,9 @@
+title: Installation
+---
+##via composer
+
+ - composer create-project thowsenmedia/flattery
+
+##download zip file
+
+ - download [this zip file] and extract it to your web server

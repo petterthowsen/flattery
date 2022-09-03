@@ -12,7 +12,9 @@ class Request {
     
     public function __construct()
     {
-        $this->method = strtoupper($_SERVER['REQUEST_METHOD']);
+        if ( ! FLATTERY_CONSOLE) {
+            $this->method = strtoupper($_SERVER['REQUEST_METHOD']);
+        }
         
         $this->rawQuery = $_GET['_flattery_query'] ?? '';
         if (strlen($this->rawQuery) > 0) {

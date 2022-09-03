@@ -42,15 +42,30 @@ class PageManager {
         $self = $this;
 
         $files = scandir($dir);
+        
         foreach($files as $file) {
             # skip these
             if ($file == '.' || $file == '..') {
                 continue;
             }else if (is_dir($dir .'/' .$file)) {
-                if ($this->isPageStructured($route .'/' .$file)) {
-                    $router->get($route .'/' .$file, function() use($self, $route, $file) {
-                        return $self->load($route .'/' .$file);
+                $pageName = $file;
+                $pageRoute = $route .$pageName;
+                $pagePath = $route .$pageName .'/' .$pageName;
+                if ($this->isPageStructured($pageRoute)) {
+                    $router->get($pageRoute, function() use($self, $pageRoute) {
+                        return $self->load($pageRoute);
                     });
+                    
+                    $children = scandir($dir .'/' .$file .'/children');
+                    foreach($children as $child_file) {
+                        if ($child_file == '.' || $child_file == '..') continue;
+                        $pageName = explode('.', $child_file)[0];
+                        $pagePath = $pageRoute .'/children/' .$pageName;
+                        $pageRoute = $pageRoute .'/' .$pageName;
+                        $router->get($pageRoute, function() use($self, $pagePath) {
+                            return $self->load($pagePath);
+                        });
+                    }
                 }else {
                     $name = explode('.', $file)[0];
                     $this->registerRoutesRecursively($router, $dir .'/' .$file, $route .'/' .$name);
@@ -92,16 +107,19 @@ class PageManager {
 
     public function getFile(string $name)
     {
+        $name = trim($name, '/');
+
         if ($this->isPageStructured($name)) {
-            return $this->tryExtensions($this->pagesDirectory .'/' .$name .'/' .$name);
-        }else {
-            return $this->tryExtensions($this->pagesDirectory .'/' .$name);
+            $name = $name .'/' .$name;
         }
+
+        $file = $this->tryExtensions($this->pagesDirectory .'/' .$name);
+        return $file;
     }
 
     public function exists(string $name)
     {
-        if ($this->isPageStructured($name)) {
+        if (file_exists($this->pagesDirectory .'/' .$name)) {
             return true;
         }
         
@@ -126,7 +144,17 @@ class PageManager {
         }
         return false;
     }
-
+    
+    public function isPageStructuredChild(string $name): bool
+    {
+        $parts = explode('/', trim($name, '/'));
+        if (count($parts) > 1) {
+            return $parts[1] == 'children';
+        }
+        
+        return false;
+    }
+    
     public function textToHTML(string $text): string
     {
         return str_replace("\n", "<br>", $text);
@@ -134,13 +162,16 @@ class PageManager {
 
     protected function load(string $name): Page
     {
+        $name = trim($name, '/');
         $structured = $this->isPageStructured($name);
+        $child = $structured ? false : $this->isPageStructuredChild($name);
         
+
+
         $file = $this->getFile($name);
-
-        $src = file_get_contents($file);
-        $src = explode("\n---", $src, 2);
-
+        
+        $src = explode("\n---", file_get_contents($file), 2);
+        
         $info = [];
         if (count($src) == 2) {
             $info = Yaml::parse($src[0]);
@@ -148,8 +179,10 @@ class PageManager {
         }else {
             $content = $src[0];
         }
-
-        if ($structured) {
+        
+        if ($child) {
+            $page = new StructuredChildPage($name, $file, $info, $content);
+        }else if ($structured) {
             $page = new StructuredPage($name, $file, $info, $content);
         }else {
             $page = new Page($name, $file, $info, $content);

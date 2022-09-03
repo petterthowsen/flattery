@@ -26,6 +26,9 @@ use ThowsenMedia\Flattery\Pages\HtmlPageRenderer;
 use ThowsenMedia\Flattery\Pages\MarkdownPageRenderer;
 use ThowsenMedia\Flattery\Validation\Validator;
 use ThowsenMedia\Flattery\Validation\BasicRulesProvider;
+use ThowsenMedia\Flattery\HTML\Element;
+
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * @property Event $event
@@ -41,15 +44,15 @@ use ThowsenMedia\Flattery\Validation\BasicRulesProvider;
  */
 class CMS extends Container {
 
-    private static $instance;
+    private static $__instance;
 
     public static function getInstance()
     {
-        if ( ! isset(static::$instance)) {
-            static::$instance = new static();
+        if ( ! isset(static::$__instance)) {
+            static::$__instance = new static();
         }
 
-        return static::$instance;
+        return static::$__instance;
     }
     
     private function __construct()
@@ -111,8 +114,6 @@ class CMS extends Container {
         }, false);
     }
 
-    public Page $currentPage;
-
     private $styles = [];
     private $scripts = [];
 
@@ -123,10 +124,22 @@ class CMS extends Container {
     {
         $name = $this->data->get('config.system', 'theme');
         $theme = new Theme($name, FLATTERY_PATH_THEMES .'/' .$name);
-        
+
+        # ensure that the data/themes/[theme].yml file exists
+        $this->ensureThemeConfig($theme);
+
         $this->addStyles($theme->getStyles());
 
         return $theme;
+    }
+
+    public function ensureThemeConfig(Theme $theme)
+    {
+        $config_path = FLATTERY_PATH_DATA .'/themes/' .$theme->getName() .'.yml';
+        if ( ! file_exists($config_path)) {
+            $yaml = Yaml::dump(['blocks' => []]);
+            file_put_contents($config_path, $yaml);
+        }
     }
 
     public function addStyles(array $styles)
@@ -159,7 +172,7 @@ class CMS extends Container {
         }
     }
 
-    public function getStylesForView(): string
+    public function renderStyles(): string
     {
         $styles = '';
         foreach($this->styles as $style) {
@@ -169,7 +182,7 @@ class CMS extends Container {
         return $styles;
     }
     
-    public function getScriptsForView(): string
+    public function renderScripts(): string
     {
         $scripts = '';
         foreach($this->scripts as $script) {
@@ -209,6 +222,7 @@ class CMS extends Container {
         }else if ($response instanceof View) {
             $response = Response::make($response->render());
         }else if ($response instanceof Page) {
+            $this->bindInstance('page', $response, true);
             $view = $this->getViewForPage($response);
             $response = Response::make($view->render());
         }
@@ -355,8 +369,6 @@ class CMS extends Container {
             'theme' => $this->theme,
             'page' => $page,
             'siteName' => $this->data->get('config.system', 'siteName'),
-            'styles' => $this->getStylesForView(),
-            'scripts' => $this->getScriptsForView(),
         ]);
     }
 
@@ -374,16 +386,26 @@ class CMS extends Container {
         }
     }
 
-    public function renderMenu(string $name = 'primaryNavigation')
+    public function renderMenu(string $name = 'primaryNavigation', mixed $classes = [], string $activeClass = 'active')
     {
         $this->event->trigger('flattery.renderMenu');
         $items = $this->data->get('config.navigation', 'menus.' .$name);
         
         $str = '';
         
-        foreach($items as $label => $link) {
+        foreach($items as $label => $uri) {
             //$link = $this->event->trigger('hook.flattery.renderMenu_link', $link);
-            $str .= "<li><a href='$link'>$label</a></li>";
+            $link = new Element('a', false, [
+                'class' => $classes,
+                'href' => $uri
+            ]);
+            $link->innerHtml($label);
+            
+            if (request()->is($uri)) {
+                $link->addClass($activeClass);
+            }
+
+            $str .= '<li>' .$link .'</li>';
         }
         
         return $str;

@@ -1,0 +1,20 @@
+name: strappery
+description: Bootstrap 5 Starter Theme
+styles:
+  - vendor/bootstrap/css/bootstrap.min.css
+  - css/strappery.css
+scripts:
+    - vendor/bootstrap/js/bootstrap.bundle.min.js
+blocks:
+  - sidebar_left_1
+  - sidebar_left_2
+  - sidebar_left_3
+  - sidebar_left_4
+  - footer_top_1
+  - footer_top_2
+  - footer_top_3
+  - footer_top_4
+  - footer_bottom_1
+  - footer_bottom_2
+  - footer_bottom_3
+  - footer_bottom_4

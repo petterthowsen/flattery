@@ -7,8 +7,12 @@ class BasicRulesProvider
 
     public static function register()
     {
-        Validator::registerRuleType('min', [static::class, 'min']);
-        Validator::registerRuleType('max', [static::class, 'max']);
+        foreach([
+            'min','max','required','alpha-numeric',
+        ] as $rule) {
+            $method = str_replace('-', '_', $rule);
+            Validator::registerRuleType($rule, [static::class, $method]);
+        }
     }
 
     public static function required($value)

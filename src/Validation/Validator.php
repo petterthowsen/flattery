@@ -57,6 +57,24 @@ class Validator
         return $rules;
     }
 
+    public static function getRuleError(string $field, $value, string $rule, array $options)
+    {
+        $field = humanize($field);
+        
+        $key = "errors.$rule";
+        if (data()->has('config.validation', $key)) {
+            $error = data()->get('config.validation', $key);
+            $error = str_replace('$field', $field, $error);
+            foreach($options as $key => $value)
+            {
+                $error = str_replace('$' .$key, $value, $error);
+            }
+            return $error;
+        }else {
+            return "The $field is invalid.";
+        }
+    }
+
     protected array $rawRules;
 
     protected array $rules;
@@ -93,7 +111,16 @@ class Validator
         {
             if (isset($this->rules[$field])) {
                 $rules = $this->rules[$field];
-                $error = static::runRule($rule['rule'], $rule['options'], $value);
+                foreach($rules as $rule) {
+                    $error = static::runRule($rule['rule'], $rule['options'], $value);
+                    if ($error !== true) {
+                        if ( ! isset($this->errors[$field])) {
+                            $this->errors[$field] = [];
+                        }
+
+                        $this->errors[$field][] = static::getRuleError($field, $value, $rule['rule'], $rule['options']);
+                    }
+                }
             }
         }
 
@@ -108,8 +135,16 @@ class Validator
         $this->errors[$field][] = $message;
     }
 
-    public function getErrors():array
+    public function getErrors(bool $groupedByFields = true):array
     {
+        if ($groupedByFields == false) {
+            $flattened = [];
+            foreach($this->errors as $field => $errors) {
+                $flattened = array_merge($flattened, $errors);
+            }
+
+            return $flattened;
+        }
         return $this->errors;
     }
 

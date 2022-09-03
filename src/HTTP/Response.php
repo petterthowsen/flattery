@@ -12,14 +12,22 @@ class Response {
         return $response;
     }
 
-    public static function redirect(string $to)
+    public static function redirect(string $to): static
     {
         $response = new static();
         $response->setHeader('Location', url($to));
         $response->setHeader('Status-code', '303');
         return $response;
     }
-
+    
+    public static function redirectBack(): static
+    {
+        $response = new static();
+        $response->setHeader('Location', $_SERVER['HTTP_REFERER']);
+        $response->setStatus(303);
+        return $response;
+    }
+    
     private array $headers = [];
 
     private $content;
@@ -30,9 +38,16 @@ class Response {
         return $this;
     }
 
+    public function back(): static
+    {
+        $this->setHeader('Location', $_SERVER['HTTP_REFERER']);
+        return $this;
+    }
+
     public function setStatusCode(int $code)
     {
         $this->setHeader('Status-code', $code);
+        return $this;
     }
 
     public function setContent($content): self
@@ -50,13 +65,13 @@ class Response {
         echo $this->content;
     }
 
-    public function with(string $flashKey, string $flashMessage): self
+    public function with(string $flashKey, mixed $flashMessage): self
     {
         session()->set('flash.' .$flashKey, $flashMessage);
         return $this;
     }
 
-    public function withMessage($flashMessage): self
+    public function withMessage(mixed $flashMessage): self
     {
         session()->put('flash.message', $flashMessage);
         return $this;

@@ -10,26 +10,26 @@ class Page {
     /**
      * Name of the file - this is the file name without the .extension
      */
-    private string $name;
+    protected string $name;
 
     /**
      * Full path to the page file
      */
-    private string $file;
+    protected string $file;
 
     /**
      * File extension
      */
-    private string $extension;
+    protected string $extension;
 
     /**
      * The source code (after the --- at the top, if it exists.)
      */
-    private string $_source;
+    protected string $_source;
 
-    private array $_data;
+    protected array $_data;
 
-    private PageRendererInterface $renderer;
+    protected PageRendererInterface $renderer;
 
     public function __construct(string $name, string $file, array $data, string $source)
     {
@@ -40,6 +40,11 @@ class Page {
 
         $exploded = explode('.', $file);
         $this->extension = array_pop($exploded);
+    }
+
+    public function getRoutePath():string
+    {
+        return $this->name;
     }
 
     public function setRendererClass(string $rendererClass)
@@ -89,6 +94,11 @@ class Page {
     public function render(): string
     {
         return $this->getRenderer()->render();
+    }
+    
+    public function __toString(): string
+    {
+        return $this->render();
     }
     
 }

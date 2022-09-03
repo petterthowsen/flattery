@@ -18,6 +18,8 @@ class TextPageRenderer implements PageRendererInterface {
     public function render(): string
     {
         $html = $this->page->getSource();
+        $html = strip_tags($html);
+        $html = ltrim($html, "\n");
         $html = str_replace("\n", "<br>", $html);
         
         $element = new Element("div");

@@ -1,0 +1,3 @@
+errors:
+  required: "$field is required."
+  min: "$field must be minimum $0."

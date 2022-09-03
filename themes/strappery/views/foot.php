@@ -1,0 +1,4 @@
+    
+    <?=flattery()->renderScripts()?>
+</body>
+</html>

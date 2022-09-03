@@ -11,11 +11,18 @@ use ThowsenMedia\Flattery\HTTP\Session;
 use ThowsenMedia\Flattery\Pages\PageManager;
 use ThowsenMedia\Flattery\Validation\Validator;
 use ThowsenMedia\Flattery\HTTP\Input;
+use ThowsenMedia\Flattery\Theme\Theme;
 
 function slugify(string $string): string
 {
 	$string = strtolower($string);
 	return urlencode($string);
+}
+
+function humanize(string $string): string
+{
+	$string = preg_replace("/[-_]+/", ' ', $string);
+	return ucwords($string);
 }
 
 /**
@@ -179,13 +186,22 @@ function flattery(?string $name = null)
 	return $cms;
 }
 
+function page(): Page
+{
+	return flattery('page');
+}
+
 function session(): Session
 {
 	return flattery('session');
 }
 
-function data(): Data
+function data(?string $file = null, ?string $key = null): mixed
 {
+	if (isset($file)) {
+		return flattery('data')->get($file, $key);
+	}
+
 	return flattery('data');
 }
 
@@ -223,7 +239,7 @@ function auth(): Auth
 	return flattery('auth');
 }
 
-function redirect(string $to): Response
+function redirect(string $to = ""): Response
 {
 	return Response::redirect($to);
 }
@@ -262,4 +278,9 @@ function str_random(int $length = 10): string
         $randomString .= $characters[rand(0, $charactersLength - 1)];
     }
     return $randomString;
+}
+
+function theme():Theme
+{
+	return flattery('theme');
 }
