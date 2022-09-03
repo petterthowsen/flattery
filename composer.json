@@ -1,11 +1,11 @@
 {
     "name": "thowsenmedia/flattery",
     "description": "Simple, extendable Flat File CMS",
-    "type": "library",
+    "type": "project",
     "license": "proprietary",
     "autoload": {
         "psr-4": {
-            "ThowsenMedia\\Flattery\\": "src/"
+            "App\\": "app/"
         }
     },
     "authors": [
@@ -16,6 +16,7 @@
     ],
     "minimum-stability": "stable",
     "require": {
+        "thowsenmedia/flattery-core": "~0",
         "symfony/yaml": "^5.3",
         "symfony/console": "^5.3"
     },

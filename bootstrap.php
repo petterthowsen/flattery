@@ -1,6 +1,7 @@
 <?php
 
 require_once 'vendor/autoload.php';
+require_once 'vendor/thowsenmedia/flattery-core/src/functions.php';
 
 const FLATTERY_PATH_ROOT        = __DIR__;
 const FLATTERY_PATH_DATA        = __DIR__ .'/app/data';

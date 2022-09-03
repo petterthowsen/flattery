@@ -2,8 +2,8 @@
 
     <div class="strappery--header">
         <div class="container">
-            <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 border-bottom">
-            <a href="<?=url('/')?>" class="d-flex align-items-center col-md-3 mb-2 mb-md-0 text-dark text-decoration-none">
+            <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3">
+            <a href="<?=url('/')?>" class="strappery--brand d-flex align-items-center col-md-3 mb-2 mb-md-0 text-dark text-decoration-none">
                 <?=$siteName?>
             </a>
 
@@ -46,8 +46,8 @@
                 <div class="container strappery--structured-page">
                     <div class="row">
                         <div class="col-auto">
-                            <ul>
-                                <?=$page->renderMenu(); ?>
+                            <ul class="nav flex-column">
+                                <?=$page->renderMenu(['class' => 'nav-link']); ?>
                             </ul>
                         </div>
                         
